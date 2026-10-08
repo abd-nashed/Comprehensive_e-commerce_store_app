@@ -13,7 +13,11 @@
         "backgroundColor": "#FF6B00"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.marketAppMobile"
+      "package": "com.anonymous.marketAppMobile",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "output": "static"
@@ -35,7 +39,8 @@
           "imageWidth": 200
         }
       ],
-      "expo-status-bar"
+      "expo-status-bar",
+      "expo-build-properties"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -46,6 +51,13 @@
       "eas": {
         "projectId": "1bd3fbf6-733a-4a32-ab4e-b514fabf9887"
       }
-    }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1bd3fbf6-733a-4a32-ab4e-b514fabf9887"
+    },
+    "ios": {}
   }
 }

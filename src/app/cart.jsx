@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,8 +10,9 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
-  Clipboard,   // ⚠️ استبدل بـ expo-clipboard لاحقاً
 } from 'react-native';
+
+import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -167,10 +167,13 @@ export default function CartScreen() {
     }
   };
 
-  const handleCopyCode = () => {
-    // ⚠️ TODO: install expo-clipboard
-    // Clipboard.setStringAsync(successDialog.tracking_code);
-    setCopyDialog({ isOpen: true, message: t('تم نسخ الكود بنجاح') });
+  const handleCopyCode = async () => {
+    try {
+      await Clipboard.setStringAsync(successDialog.tracking_code);
+      setCopyDialog({ isOpen: true, message: t('تم نسخ الكود بنجاح') });
+    } catch (error) {
+      setErrorDialog({ isOpen: true, message: t('فشل نسخ الكود') });
+    }
   };
 
   const handleSuccessClose = () => {
@@ -533,7 +536,7 @@ export default function CartScreen() {
       >
         <View style={[styles.dialogOverlay, { backgroundColor: c.overlay }]}>
           <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
             style={styles.dialogContainer}
           >
             <View
