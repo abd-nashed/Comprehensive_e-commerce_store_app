@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,7 +12,6 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-
 import * as Clipboard from 'expo-clipboard';
 import { useRouter } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -172,7 +172,7 @@ export default function CartScreen() {
       await Clipboard.setStringAsync(successDialog.tracking_code);
       setCopyDialog({ isOpen: true, message: t('تم نسخ الكود بنجاح') });
     } catch (error) {
-      setErrorDialog({ isOpen: true, message: t('فشل نسخ الكود') });
+      console.error('Copy failed:', error);
     }
   };
 
@@ -532,186 +532,23 @@ export default function CartScreen() {
         visible={checkoutDialog.isOpen}
         transparent
         animationType="fade"
+        statusBarTranslucent
         onRequestClose={closeCheckoutDialog}
       >
-        <View style={[styles.dialogOverlay, { backgroundColor: c.overlay }]}>
+        {Platform.OS === 'ios' ? (
           <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
-            style={styles.dialogContainer}
+            style={styles.flex1}
+            behavior="padding"
           >
-            <View
-              style={[
-                styles.dialog,
-                styles.formDialog,
-                { backgroundColor: c.surface, borderColor: c.border },
-              ]}
-            >
-              <View
-                style={[
-                  styles.dialogHeader,
-                  {
-                    backgroundColor: c.surface2,
-                    borderBottomColor: c.border,
-                  },
-                ]}
-              >
-                <Text style={[styles.dialogTitle, { color: c.text }]}>
-                  📝 {t('معلومات الطلب')}
-                </Text>
-                <Pressable
-                  style={[styles.dialogClose, { borderColor: c.border }]}
-                  onPress={closeCheckoutDialog}
-                >
-                  <Text style={[styles.dialogCloseText, { color: c.textMuted }]}>
-                    ✕
-                  </Text>
-                </Pressable>
-              </View>
-
-              <ScrollView
-                style={styles.dialogBody}
-                contentContainerStyle={styles.dialogBodyContent}
-                keyboardShouldPersistTaps="handled"
-                keyboardDismissMode="on-drag"
-                showsVerticalScrollIndicator={false}
-                bounces={false}
-              >
-                <View
-                  style={[
-                    styles.infoBox,
-                    { backgroundColor: c.primaryBg, borderColor: c.primary },
-                  ]}
-                >
-                  <Text style={[styles.infoBoxText, { color: c.primary }]}>
-                    ℹ️ {t('أدخل بياناتك وسنتواصل معك لتأكيد الطلب')}
-                  </Text>
-                </View>
-
-                <View style={styles.formGroup}>
-                  <Text style={[styles.formLabel, { color: c.grayDark }]}>
-                    {t('الاسم الكامل')} *
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.formInput,
-                      {
-                        backgroundColor: c.surface2,
-                        borderColor: c.border,
-                        color: c.text,
-                      },
-                    ]}
-                    placeholder={t('أدخل اسمك الكامل')}
-                    placeholderTextColor={c.textMuted}
-                    value={checkoutDialog.full_name}
-                    onChangeText={(text) =>
-                      setCheckoutDialog({
-                        ...checkoutDialog,
-                        full_name: text,
-                      })
-                    }
-                    editable={!isCreating}
-                  />
-                </View>
-
-                <View style={styles.formGroup}>
-                  <Text style={[styles.formLabel, { color: c.grayDark }]}>
-                    {t('رقم الهاتف')} *
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.formInput,
-                      {
-                        backgroundColor: c.surface2,
-                        borderColor: c.border,
-                        color: c.text,
-                      },
-                    ]}
-                    placeholder="09XXXXXXXX"
-                    placeholderTextColor={c.textMuted}
-                    value={checkoutDialog.phone}
-                    onChangeText={(text) =>
-                      setCheckoutDialog({
-                        ...checkoutDialog,
-                        phone: text,
-                      })
-                    }
-                    keyboardType="phone-pad"
-                    editable={!isCreating}
-                  />
-                </View>
-
-                <View style={styles.formGroup}>
-                  <Text style={[styles.formLabel, { color: c.grayDark }]}>
-                    {t('العنوان / الموقع')} *
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.formInput,
-                      styles.formTextarea,
-                      {
-                        backgroundColor: c.surface2,
-                        borderColor: c.border,
-                        color: c.text,
-                      },
-                    ]}
-                    placeholder={t('المدينة، الحي، الشارع، ...')}
-                    placeholderTextColor={c.textMuted}
-                    value={checkoutDialog.address}
-                    onChangeText={(text) =>
-                      setCheckoutDialog({
-                        ...checkoutDialog,
-                        address: text,
-                      })
-                    }
-                    multiline
-                    numberOfLines={3}
-                    textAlignVertical="top"
-                    editable={!isCreating}
-                  />
-                </View>
-
-                <View style={styles.dialogActions}>
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.dialogBtn,
-                      {
-                        backgroundColor: c.surface2,
-                        borderColor: c.border,
-                      },
-                      pressed && styles.pressed,
-                    ]}
-                    onPress={closeCheckoutDialog}
-                    disabled={isCreating}
-                  >
-                    <Text
-                      style={[styles.dialogBtnText, { color: c.grayDark }]}
-                    >
-                      {t('إلغاء')}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.dialogBtn,
-                      {
-                        backgroundColor: c.primary,
-                        borderColor: c.primary,
-                      },
-                      (pressed || isCreating) && styles.pressed,
-                    ]}
-                    onPress={handleCheckout}
-                    disabled={isCreating}
-                  >
-                    <Text style={[styles.dialogBtnText, { color: '#FFFFFF' }]}>
-                      {isCreating
-                        ? t('جاري الإرسال...')
-                        : `✅ ${t('تأكيد الطلب')}`}
-                    </Text>
-                  </Pressable>
-                </View>
-              </ScrollView>
+            <View style={[styles.dialogOverlay, { backgroundColor: c.overlay }]}>
+              {renderCheckoutContent()}
             </View>
           </KeyboardAvoidingView>
-        </View>
+        ) : (
+          <View style={[styles.dialogOverlay, { backgroundColor: c.overlay }]}>
+            {renderCheckoutContent()}
+          </View>
+        )}
       </Modal>
 
       {/* ============ Success Dialog ============ */}
@@ -719,6 +556,7 @@ export default function CartScreen() {
         visible={successDialog.isOpen}
         transparent
         animationType="fade"
+        statusBarTranslucent
         onRequestClose={handleSuccessClose}
       >
         <View style={[styles.dialogOverlay, { backgroundColor: c.overlay }]}>
@@ -792,6 +630,7 @@ export default function CartScreen() {
         visible={copyDialog.isOpen}
         transparent
         animationType="fade"
+        statusBarTranslucent
         onRequestClose={() => setCopyDialog({ isOpen: false, message: '' })}
       >
         <View style={[styles.dialogOverlay, { backgroundColor: c.overlay }]}>
@@ -831,6 +670,7 @@ export default function CartScreen() {
         visible={clearCartDialog.isOpen}
         transparent
         animationType="fade"
+        statusBarTranslucent
         onRequestClose={() => setClearCartDialog({ isOpen: false })}
       >
         <View style={[styles.dialogOverlay, { backgroundColor: c.overlay }]}>
@@ -884,6 +724,7 @@ export default function CartScreen() {
         visible={errorDialog.isOpen}
         transparent
         animationType="fade"
+        statusBarTranslucent
         onRequestClose={() => setErrorDialog({ isOpen: false, message: '' })}
       >
         <View style={[styles.dialogOverlay, { backgroundColor: c.overlay }]}>
@@ -919,10 +760,186 @@ export default function CartScreen() {
       </Modal>
     </View>
   );
+
+  // ============ Checkout Content Renderer ============
+  function renderCheckoutContent() {
+    return (
+      <View
+        style={[
+          styles.dialog,
+          styles.formDialog,
+          { backgroundColor: c.surface, borderColor: c.border },
+        ]}
+      >
+        <View
+          style={[
+            styles.dialogHeader,
+            {
+              backgroundColor: c.surface2,
+              borderBottomColor: c.border,
+            },
+          ]}
+        >
+          <Text style={[styles.dialogTitle, { color: c.text }]}>
+            📝 {t('معلومات الطلب')}
+          </Text>
+          <Pressable
+            style={[styles.dialogClose, { borderColor: c.border }]}
+            onPress={closeCheckoutDialog}
+          >
+            <Text style={[styles.dialogCloseText, { color: c.textMuted }]}>
+              ✕
+            </Text>
+          </Pressable>
+        </View>
+
+        <ScrollView
+          style={styles.dialogBody}
+          contentContainerStyle={styles.dialogBodyContent}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          showsVerticalScrollIndicator={false}
+          bounces={false}
+        >
+          <View
+            style={[
+              styles.infoBox,
+              { backgroundColor: c.primaryBg, borderColor: c.primary },
+            ]}
+          >
+            <Text style={[styles.infoBoxText, { color: c.primary }]}>
+              ℹ️ {t('أدخل بياناتك وسنتواصل معك لتأكيد الطلب')}
+            </Text>
+          </View>
+
+          <View style={styles.formGroup}>
+            <Text style={[styles.formLabel, { color: c.grayDark }]}>
+              {t('الاسم الكامل')} *
+            </Text>
+            <TextInput
+              style={[
+                styles.formInput,
+                {
+                  backgroundColor: c.surface2,
+                  borderColor: c.border,
+                  color: c.text,
+                },
+              ]}
+              placeholder={t('أدخل اسمك الكامل')}
+              placeholderTextColor={c.textMuted}
+              value={checkoutDialog.full_name}
+              onChangeText={(text) =>
+                setCheckoutDialog({
+                  ...checkoutDialog,
+                  full_name: text,
+                })
+              }
+              editable={!isCreating}
+            />
+          </View>
+
+          <View style={styles.formGroup}>
+            <Text style={[styles.formLabel, { color: c.grayDark }]}>
+              {t('رقم الهاتف')} *
+            </Text>
+            <TextInput
+              style={[
+                styles.formInput,
+                {
+                  backgroundColor: c.surface2,
+                  borderColor: c.border,
+                  color: c.text,
+                },
+              ]}
+              placeholder="09XXXXXXXX"
+              placeholderTextColor={c.textMuted}
+              value={checkoutDialog.phone}
+              onChangeText={(text) =>
+                setCheckoutDialog({
+                  ...checkoutDialog,
+                  phone: text,
+                })
+              }
+              keyboardType="phone-pad"
+              editable={!isCreating}
+            />
+          </View>
+
+          <View style={styles.formGroup}>
+            <Text style={[styles.formLabel, { color: c.grayDark }]}>
+              {t('العنوان / الموقع')} *
+            </Text>
+            <TextInput
+              style={[
+                styles.formInput,
+                styles.formTextarea,
+                {
+                  backgroundColor: c.surface2,
+                  borderColor: c.border,
+                  color: c.text,
+                },
+              ]}
+              placeholder={t('المدينة، الحي، الشارع، ...')}
+              placeholderTextColor={c.textMuted}
+              value={checkoutDialog.address}
+              onChangeText={(text) =>
+                setCheckoutDialog({
+                  ...checkoutDialog,
+                  address: text,
+                })
+              }
+              multiline
+              numberOfLines={3}
+              textAlignVertical="top"
+              editable={!isCreating}
+            />
+          </View>
+
+          <View style={styles.dialogActions}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.dialogBtn,
+                {
+                  backgroundColor: c.surface2,
+                  borderColor: c.border,
+                },
+                pressed && styles.pressed,
+              ]}
+              onPress={closeCheckoutDialog}
+              disabled={isCreating}
+            >
+              <Text style={[styles.dialogBtnText, { color: c.grayDark }]}>
+                {t('إلغاء')}
+              </Text>
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [
+                styles.dialogBtn,
+                {
+                  backgroundColor: c.primary,
+                  borderColor: c.primary,
+                },
+                (pressed || isCreating) && styles.pressed,
+              ]}
+              onPress={handleCheckout}
+              disabled={isCreating}
+            >
+              <Text style={[styles.dialogBtnText, { color: '#FFFFFF' }]}>
+                {isCreating
+                  ? t('جاري الإرسال...')
+                  : `✅ ${t('تأكيد الطلب')}`}
+              </Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
+  flex1: { flex: 1 },
   scroll: { flex: 1 },
   scrollContent: { paddingBottom: 20 },
   pressed: { opacity: 0.7 },
@@ -1177,11 +1194,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 16,
-  },
-  dialogContainer: {
-    width: '100%',
-    maxWidth: 480,
-    maxHeight: '85%',
   },
   dialog: {
     width: '100%',
