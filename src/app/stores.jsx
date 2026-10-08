@@ -499,6 +499,471 @@ export default function StoresScreen() {
     }
   };
 
+  // ============ Form Dialog Content ============
+  const renderFormContent = () => (
+    <View
+      style={[
+        styles.dialog,
+        styles.formDialog,
+        { backgroundColor: c.surface, borderColor: c.border },
+      ]}
+    >
+      <View
+        style={[
+          styles.dialogHeader,
+          {
+            backgroundColor: c.surface2,
+            borderBottomColor: c.border,
+          },
+        ]}
+      >
+        <Text style={[styles.dialogTitle, { color: c.text }]}>
+          {formDialog.mode === 'add'
+            ? t('➕ إضافة متجر جديد')
+            : t('✏️ تعديل المتجر')}
+        </Text>
+        <Pressable
+          style={[styles.dialogClose, { borderColor: c.border }]}
+          onPress={closeFormDialog}
+        >
+          <Text style={[styles.dialogCloseText, { color: c.textMuted }]}>
+            ✕
+          </Text>
+        </Pressable>
+      </View>
+
+      <ScrollView
+        style={styles.dialogBody}
+        contentContainerStyle={styles.dialogBodyContent}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+      >
+        <View style={styles.formGroup}>
+          <Text style={[styles.formLabel, { color: c.grayDark }]}>
+            {t('اسم المتجر')} *
+          </Text>
+          <TextInput
+            style={[
+              styles.formInput,
+              {
+                backgroundColor: c.surface2,
+                borderColor: c.border,
+                color: c.text,
+              },
+            ]}
+            placeholder={t('مثال: متجر الإلكترونيات')}
+            placeholderTextColor={c.textMuted}
+            value={formDialog.name}
+            onChangeText={(text) =>
+              setFormDialog({ ...formDialog, name: text })
+            }
+          />
+        </View>
+
+        <View style={styles.formGroup}>
+          <Text style={[styles.formLabel, { color: c.grayDark }]}>
+            {t('رقم الهاتف')} *
+          </Text>
+          <TextInput
+            style={[
+              styles.formInput,
+              {
+                backgroundColor: c.surface2,
+                borderColor: c.border,
+                color: c.text,
+              },
+            ]}
+            placeholder="09XXXXXXXX"
+            placeholderTextColor={c.textMuted}
+            value={formDialog.phone}
+            onChangeText={(text) =>
+              setFormDialog({ ...formDialog, phone: text })
+            }
+            keyboardType="phone-pad"
+          />
+        </View>
+
+        <View style={styles.formGroup}>
+          <Text style={[styles.formLabel, { color: c.grayDark }]}>
+            {t('المنطقة')}
+          </Text>
+          <TextInput
+            style={[
+              styles.formInput,
+              {
+                backgroundColor: c.surface2,
+                borderColor: c.border,
+                color: c.text,
+              },
+            ]}
+            placeholder={t('مثال: دمشق')}
+            placeholderTextColor={c.textMuted}
+            value={formDialog.region}
+            onChangeText={(text) =>
+              setFormDialog({ ...formDialog, region: text })
+            }
+          />
+        </View>
+
+        <View style={styles.formGroup}>
+          <Text style={[styles.formLabel, { color: c.grayDark }]}>
+            {t('الوصف')} *
+          </Text>
+          <TextInput
+            style={[
+              styles.formInput,
+              styles.formTextarea,
+              {
+                backgroundColor: c.surface2,
+                borderColor: c.border,
+                color: c.text,
+              },
+            ]}
+            placeholder={t('وصف قصير للمتجر...')}
+            placeholderTextColor={c.textMuted}
+            value={formDialog.description}
+            onChangeText={(text) =>
+              setFormDialog({ ...formDialog, description: text })
+            }
+            multiline
+            numberOfLines={3}
+            textAlignVertical="top"
+          />
+        </View>
+
+        <View style={styles.formGroup}>
+          <Text style={[styles.formLabel, { color: c.grayDark }]}>
+            {t('صورة المتجر')}
+          </Text>
+
+          {formDialog.imagePreview ? (
+            <View style={styles.imagePreviewWrapper}>
+              <Image
+                source={{ uri: formDialog.imagePreview }}
+                style={styles.formImagePreview}
+                resizeMode="cover"
+              />
+              <Pressable
+                style={[
+                  styles.removeImageBtn,
+                  { backgroundColor: c.danger },
+                ]}
+                onPress={() =>
+                  setFormDialog({
+                    ...formDialog,
+                    image: null,
+                    imagePreview: '',
+                  })
+                }
+              >
+                <Text style={styles.removeImageBtnText}>✕</Text>
+              </Pressable>
+            </View>
+          ) : null}
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.imagePickerBtn,
+              {
+                backgroundColor: c.surface2,
+                borderColor: c.primary,
+              },
+              pressed && styles.pressed,
+            ]}
+            onPress={showFormImageOptions}
+          >
+            <Text
+              style={[styles.imagePickerBtnText, { color: c.primary }]}
+            >
+              📷{' '}
+              {formDialog.imagePreview
+                ? t('تغيير الصورة')
+                : t('اختر صورة')}
+            </Text>
+          </Pressable>
+        </View>
+
+        <View style={styles.dialogActions}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.dialogBtn,
+              {
+                backgroundColor: c.surface2,
+                borderColor: c.border,
+              },
+              pressed && styles.pressed,
+            ]}
+            onPress={closeFormDialog}
+            disabled={isSaving}
+          >
+            <Text
+              style={[styles.dialogBtnText, { color: c.grayDark }]}
+            >
+              {t('إلغاء')}
+            </Text>
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [
+              styles.dialogBtn,
+              {
+                backgroundColor: c.primary,
+                borderColor: c.primary,
+              },
+              (pressed || isSaving) && styles.pressed,
+            ]}
+            onPress={handleSave}
+            disabled={isSaving}
+          >
+            <Text style={[styles.dialogBtnText, { color: '#FFFFFF' }]}>
+              {isSaving
+                ? t('جاري الحفظ...')
+                : formDialog.mode === 'add'
+                ? t('إضافة')
+                : t('تعديل')}
+            </Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </View>
+  );
+
+  // ============ Request Dialog Content ============
+  const renderRequestContent = () => (
+    <View
+      style={[
+        styles.dialog,
+        styles.formDialog,
+        { backgroundColor: c.surface, borderColor: c.border },
+      ]}
+    >
+      <View
+        style={[
+          styles.dialogHeader,
+          {
+            backgroundColor: c.surface2,
+            borderBottomColor: c.border,
+          },
+        ]}
+      >
+        <Text style={[styles.dialogTitle, { color: c.text }]}>
+          🏪 {t('افتح متجرك')}
+        </Text>
+        <Pressable
+          style={[styles.dialogClose, { borderColor: c.border }]}
+          onPress={closeRequestDialog}
+        >
+          <Text style={[styles.dialogCloseText, { color: c.textMuted }]}>
+            ✕
+          </Text>
+        </Pressable>
+      </View>
+
+      <ScrollView
+        style={styles.dialogBody}
+        contentContainerStyle={styles.dialogBodyContent}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+      >
+        <View
+          style={[
+            styles.infoBox,
+            { backgroundColor: c.primaryBg, borderColor: c.primary },
+          ]}
+        >
+          <Text style={[styles.infoBoxText, { color: c.primary }]}>
+            ℹ️ {t('سيتم مراجعة طلبك من قِبل المسؤولين قبل الموافقة.')}
+          </Text>
+        </View>
+
+        <View style={styles.formGroup}>
+          <Text style={[styles.formLabel, { color: c.grayDark }]}>
+            {t('اسم المتجر')} *
+          </Text>
+          <TextInput
+            style={[
+              styles.formInput,
+              {
+                backgroundColor: c.surface2,
+                borderColor: c.border,
+                color: c.text,
+              },
+            ]}
+            placeholder={t('مثال: متجر الأزياء')}
+            placeholderTextColor={c.textMuted}
+            value={requestDialog.store_name}
+            onChangeText={(text) =>
+              setRequestDialog({ ...requestDialog, store_name: text })
+            }
+          />
+        </View>
+
+        <View style={styles.formGroup}>
+          <Text style={[styles.formLabel, { color: c.grayDark }]}>
+            {t('رقم الهاتف')} *
+          </Text>
+          <TextInput
+            style={[
+              styles.formInput,
+              {
+                backgroundColor: c.surface2,
+                borderColor: c.border,
+                color: c.text,
+              },
+            ]}
+            placeholder="09XXXXXXXX"
+            placeholderTextColor={c.textMuted}
+            value={requestDialog.phone}
+            onChangeText={(text) =>
+              setRequestDialog({ ...requestDialog, phone: text })
+            }
+            keyboardType="phone-pad"
+          />
+        </View>
+
+        <View style={styles.formGroup}>
+          <Text style={[styles.formLabel, { color: c.grayDark }]}>
+            {t('المنطقة')}
+          </Text>
+          <TextInput
+            style={[
+              styles.formInput,
+              {
+                backgroundColor: c.surface2,
+                borderColor: c.border,
+                color: c.text,
+              },
+            ]}
+            placeholder={t('مثال: دمشق')}
+            placeholderTextColor={c.textMuted}
+            value={requestDialog.region}
+            onChangeText={(text) =>
+              setRequestDialog({ ...requestDialog, region: text })
+            }
+          />
+        </View>
+
+        <View style={styles.formGroup}>
+          <Text style={[styles.formLabel, { color: c.grayDark }]}>
+            {t('الوصف')} *
+          </Text>
+          <TextInput
+            style={[
+              styles.formInput,
+              styles.formTextarea,
+              {
+                backgroundColor: c.surface2,
+                borderColor: c.border,
+                color: c.text,
+              },
+            ]}
+            placeholder={t('وصف قصير للمتجر...')}
+            placeholderTextColor={c.textMuted}
+            value={requestDialog.description}
+            onChangeText={(text) =>
+              setRequestDialog({ ...requestDialog, description: text })
+            }
+            multiline
+            numberOfLines={3}
+            textAlignVertical="top"
+          />
+        </View>
+
+        <View style={styles.formGroup}>
+          <Text style={[styles.formLabel, { color: c.grayDark }]}>
+            {t('صورة المتجر')}
+          </Text>
+
+          {requestDialog.imagePreview ? (
+            <View style={styles.imagePreviewWrapper}>
+              <Image
+                source={{ uri: requestDialog.imagePreview }}
+                style={styles.formImagePreview}
+                resizeMode="cover"
+              />
+              <Pressable
+                style={[
+                  styles.removeImageBtn,
+                  { backgroundColor: c.danger },
+                ]}
+                onPress={() =>
+                  setRequestDialog({
+                    ...requestDialog,
+                    image: null,
+                    imagePreview: '',
+                  })
+                }
+              >
+                <Text style={styles.removeImageBtnText}>✕</Text>
+              </Pressable>
+            </View>
+          ) : null}
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.imagePickerBtn,
+              {
+                backgroundColor: c.surface2,
+                borderColor: c.primary,
+              },
+              pressed && styles.pressed,
+            ]}
+            onPress={showRequestImageOptions}
+          >
+            <Text
+              style={[styles.imagePickerBtnText, { color: c.primary }]}
+            >
+              📷{' '}
+              {requestDialog.imagePreview
+                ? t('تغيير الصورة')
+                : t('اختر صورة')}
+            </Text>
+          </Pressable>
+        </View>
+
+        <View style={styles.dialogActions}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.dialogBtn,
+              {
+                backgroundColor: c.surface2,
+                borderColor: c.border,
+              },
+              pressed && styles.pressed,
+            ]}
+            onPress={closeRequestDialog}
+            disabled={isSending}
+          >
+            <Text
+              style={[styles.dialogBtnText, { color: c.grayDark }]}
+            >
+              {t('إلغاء')}
+            </Text>
+          </Pressable>
+          <Pressable
+            style={({ pressed }) => [
+              styles.dialogBtn,
+              {
+                backgroundColor: c.primary,
+                borderColor: c.primary,
+              },
+              (pressed || isSending) && styles.pressed,
+            ]}
+            onPress={handleSendRequest}
+            disabled={isSending}
+          >
+            <Text style={[styles.dialogBtnText, { color: '#FFFFFF' }]}>
+              {isSending ? t('جاري الإرسال...') : t('إرسال الطلب')}
+            </Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </View>
+  );
+
   if (isLoading && stores.length === 0) {
     return (
       <View style={[styles.root, { backgroundColor: c.bg }]}>
@@ -906,239 +1371,23 @@ export default function StoresScreen() {
         visible={formDialog.isOpen}
         transparent
         animationType="fade"
+        statusBarTranslucent
         onRequestClose={closeFormDialog}
       >
-        <View style={[styles.dialogOverlay, { backgroundColor: c.overlay }]}>
+        {Platform.OS === 'ios' ? (
           <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-            style={styles.dialogContainer}
+            style={styles.flex1}
+            behavior="padding"
           >
-            <View
-              style={[
-                styles.dialog,
-                styles.formDialog,
-                { backgroundColor: c.surface, borderColor: c.border },
-              ]}
-            >
-              <View
-                style={[
-                  styles.dialogHeader,
-                  {
-                    backgroundColor: c.surface2,
-                    borderBottomColor: c.border,
-                  },
-                ]}
-              >
-                <Text style={[styles.dialogTitle, { color: c.text }]}>
-                  {formDialog.mode === 'add'
-                    ? t('➕ إضافة متجر جديد')
-                    : t('✏️ تعديل المتجر')}
-                </Text>
-                <Pressable
-                  style={[styles.dialogClose, { borderColor: c.border }]}
-                  onPress={closeFormDialog}
-                >
-                  <Text style={[styles.dialogCloseText, { color: c.textMuted }]}>
-                    ✕
-                  </Text>
-                </Pressable>
-              </View>
-
-              <ScrollView
-                style={styles.dialogBody}
-                contentContainerStyle={styles.dialogBodyContent}
-                keyboardShouldPersistTaps="handled"
-              >
-                <View style={styles.formGroup}>
-                  <Text style={[styles.formLabel, { color: c.grayDark }]}>
-                    {t('اسم المتجر')} *
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.formInput,
-                      {
-                        backgroundColor: c.surface2,
-                        borderColor: c.border,
-                        color: c.text,
-                      },
-                    ]}
-                    placeholder={t('مثال: متجر الإلكترونيات')}
-                    placeholderTextColor={c.textMuted}
-                    value={formDialog.name}
-                    onChangeText={(text) =>
-                      setFormDialog({ ...formDialog, name: text })
-                    }
-                  />
-                </View>
-
-                <View style={styles.formGroup}>
-                  <Text style={[styles.formLabel, { color: c.grayDark }]}>
-                    {t('رقم الهاتف')} *
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.formInput,
-                      {
-                        backgroundColor: c.surface2,
-                        borderColor: c.border,
-                        color: c.text,
-                      },
-                    ]}
-                    placeholder="09XXXXXXXX"
-                    placeholderTextColor={c.textMuted}
-                    value={formDialog.phone}
-                    onChangeText={(text) =>
-                      setFormDialog({ ...formDialog, phone: text })
-                    }
-                    keyboardType="phone-pad"
-                  />
-                </View>
-
-                <View style={styles.formGroup}>
-                  <Text style={[styles.formLabel, { color: c.grayDark }]}>
-                    {t('المنطقة')}
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.formInput,
-                      {
-                        backgroundColor: c.surface2,
-                        borderColor: c.border,
-                        color: c.text,
-                      },
-                    ]}
-                    placeholder={t('مثال: دمشق')}
-                    placeholderTextColor={c.textMuted}
-                    value={formDialog.region}
-                    onChangeText={(text) =>
-                      setFormDialog({ ...formDialog, region: text })
-                    }
-                  />
-                </View>
-
-                <View style={styles.formGroup}>
-                  <Text style={[styles.formLabel, { color: c.grayDark }]}>
-                    {t('الوصف')} *
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.formInput,
-                      styles.formTextarea,
-                      {
-                        backgroundColor: c.surface2,
-                        borderColor: c.border,
-                        color: c.text,
-                      },
-                    ]}
-                    placeholder={t('وصف قصير للمتجر...')}
-                    placeholderTextColor={c.textMuted}
-                    value={formDialog.description}
-                    onChangeText={(text) =>
-                      setFormDialog({ ...formDialog, description: text })
-                    }
-                    multiline
-                    numberOfLines={3}
-                    textAlignVertical="top"
-                  />
-                </View>
-
-                <View style={styles.formGroup}>
-                  <Text style={[styles.formLabel, { color: c.grayDark }]}>
-                    {t('صورة المتجر')}
-                  </Text>
-
-                  {formDialog.imagePreview ? (
-                    <View style={styles.imagePreviewWrapper}>
-                      <Image
-                        source={{ uri: formDialog.imagePreview }}
-                        style={styles.formImagePreview}
-                        resizeMode="cover"
-                      />
-                      <Pressable
-                        style={[
-                          styles.removeImageBtn,
-                          { backgroundColor: c.danger },
-                        ]}
-                        onPress={() =>
-                          setFormDialog({
-                            ...formDialog,
-                            image: null,
-                            imagePreview: '',
-                          })
-                        }
-                      >
-                        <Text style={styles.removeImageBtnText}>✕</Text>
-                      </Pressable>
-                    </View>
-                  ) : null}
-
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.imagePickerBtn,
-                      {
-                        backgroundColor: c.surface2,
-                        borderColor: c.primary,
-                      },
-                      pressed && styles.pressed,
-                    ]}
-                    onPress={showFormImageOptions}
-                  >
-                    <Text
-                      style={[styles.imagePickerBtnText, { color: c.primary }]}
-                    >
-                      📷{' '}
-                      {formDialog.imagePreview
-                        ? t('تغيير الصورة')
-                        : t('اختر صورة')}
-                    </Text>
-                  </Pressable>
-                </View>
-
-                <View style={styles.dialogActions}>
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.dialogBtn,
-                      {
-                        backgroundColor: c.surface2,
-                        borderColor: c.border,
-                      },
-                      pressed && styles.pressed,
-                    ]}
-                    onPress={closeFormDialog}
-                    disabled={isSaving}
-                  >
-                    <Text
-                      style={[styles.dialogBtnText, { color: c.grayDark }]}
-                    >
-                      {t('إلغاء')}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.dialogBtn,
-                      {
-                        backgroundColor: c.primary,
-                        borderColor: c.primary,
-                      },
-                      (pressed || isSaving) && styles.pressed,
-                    ]}
-                    onPress={handleSave}
-                    disabled={isSaving}
-                  >
-                    <Text style={[styles.dialogBtnText, { color: '#FFFFFF' }]}>
-                      {isSaving
-                        ? t('جاري الحفظ...')
-                        : formDialog.mode === 'add'
-                        ? t('إضافة')
-                        : t('تعديل')}
-                    </Text>
-                  </Pressable>
-                </View>
-              </ScrollView>
+            <View style={[styles.dialogOverlay, { backgroundColor: c.overlay }]}>
+              {renderFormContent()}
             </View>
           </KeyboardAvoidingView>
-        </View>
+        ) : (
+          <View style={[styles.dialogOverlay, { backgroundColor: c.overlay }]}>
+            {renderFormContent()}
+          </View>
+        )}
       </Modal>
 
       {/* Request Dialog */}
@@ -1146,244 +1395,23 @@ export default function StoresScreen() {
         visible={requestDialog.isOpen}
         transparent
         animationType="fade"
+        statusBarTranslucent
         onRequestClose={closeRequestDialog}
       >
-        <View style={[styles.dialogOverlay, { backgroundColor: c.overlay }]}>
+        {Platform.OS === 'ios' ? (
           <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-            style={styles.dialogContainer}
+            style={styles.flex1}
+            behavior="padding"
           >
-            <View
-              style={[
-                styles.dialog,
-                styles.formDialog,
-                { backgroundColor: c.surface, borderColor: c.border },
-              ]}
-            >
-              <View
-                style={[
-                  styles.dialogHeader,
-                  {
-                    backgroundColor: c.surface2,
-                    borderBottomColor: c.border,
-                  },
-                ]}
-              >
-                <Text style={[styles.dialogTitle, { color: c.text }]}>
-                  🏪 {t('افتح متجرك')}
-                </Text>
-                <Pressable
-                  style={[styles.dialogClose, { borderColor: c.border }]}
-                  onPress={closeRequestDialog}
-                >
-                  <Text style={[styles.dialogCloseText, { color: c.textMuted }]}>
-                    ✕
-                  </Text>
-                </Pressable>
-              </View>
-
-              <ScrollView
-                style={styles.dialogBody}
-                contentContainerStyle={styles.dialogBodyContent}
-                keyboardShouldPersistTaps="handled"
-              >
-                <View
-                  style={[
-                    styles.infoBox,
-                    { backgroundColor: c.primaryBg, borderColor: c.primary },
-                  ]}
-                >
-                  <Text style={[styles.infoBoxText, { color: c.primary }]}>
-                    ℹ️ {t('سيتم مراجعة طلبك من قِبل المسؤولين قبل الموافقة.')}
-                  </Text>
-                </View>
-
-                <View style={styles.formGroup}>
-                  <Text style={[styles.formLabel, { color: c.grayDark }]}>
-                    {t('اسم المتجر')} *
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.formInput,
-                      {
-                        backgroundColor: c.surface2,
-                        borderColor: c.border,
-                        color: c.text,
-                      },
-                    ]}
-                    placeholder={t('مثال: متجر الأزياء')}
-                    placeholderTextColor={c.textMuted}
-                    value={requestDialog.store_name}
-                    onChangeText={(text) =>
-                      setRequestDialog({ ...requestDialog, store_name: text })
-                    }
-                  />
-                </View>
-
-                <View style={styles.formGroup}>
-                  <Text style={[styles.formLabel, { color: c.grayDark }]}>
-                    {t('رقم الهاتف')} *
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.formInput,
-                      {
-                        backgroundColor: c.surface2,
-                        borderColor: c.border,
-                        color: c.text,
-                      },
-                    ]}
-                    placeholder="09XXXXXXXX"
-                    placeholderTextColor={c.textMuted}
-                    value={requestDialog.phone}
-                    onChangeText={(text) =>
-                      setRequestDialog({ ...requestDialog, phone: text })
-                    }
-                    keyboardType="phone-pad"
-                  />
-                </View>
-
-                <View style={styles.formGroup}>
-                  <Text style={[styles.formLabel, { color: c.grayDark }]}>
-                    {t('المنطقة')}
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.formInput,
-                      {
-                        backgroundColor: c.surface2,
-                        borderColor: c.border,
-                        color: c.text,
-                      },
-                    ]}
-                    placeholder={t('مثال: دمشق')}
-                    placeholderTextColor={c.textMuted}
-                    value={requestDialog.region}
-                    onChangeText={(text) =>
-                      setRequestDialog({ ...requestDialog, region: text })
-                    }
-                  />
-                </View>
-
-                <View style={styles.formGroup}>
-                  <Text style={[styles.formLabel, { color: c.grayDark }]}>
-                    {t('الوصف')} *
-                  </Text>
-                  <TextInput
-                    style={[
-                      styles.formInput,
-                      styles.formTextarea,
-                      {
-                        backgroundColor: c.surface2,
-                        borderColor: c.border,
-                        color: c.text,
-                      },
-                    ]}
-                    placeholder={t('وصف قصير للمتجر...')}
-                    placeholderTextColor={c.textMuted}
-                    value={requestDialog.description}
-                    onChangeText={(text) =>
-                      setRequestDialog({ ...requestDialog, description: text })
-                    }
-                    multiline
-                    numberOfLines={3}
-                    textAlignVertical="top"
-                  />
-                </View>
-
-                <View style={styles.formGroup}>
-                  <Text style={[styles.formLabel, { color: c.grayDark }]}>
-                    {t('صورة المتجر')}
-                  </Text>
-
-                  {requestDialog.imagePreview ? (
-                    <View style={styles.imagePreviewWrapper}>
-                      <Image
-                        source={{ uri: requestDialog.imagePreview }}
-                        style={styles.formImagePreview}
-                        resizeMode="cover"
-                      />
-                      <Pressable
-                        style={[
-                          styles.removeImageBtn,
-                          { backgroundColor: c.danger },
-                        ]}
-                        onPress={() =>
-                          setRequestDialog({
-                            ...requestDialog,
-                            image: null,
-                            imagePreview: '',
-                          })
-                        }
-                      >
-                        <Text style={styles.removeImageBtnText}>✕</Text>
-                      </Pressable>
-                    </View>
-                  ) : null}
-
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.imagePickerBtn,
-                      {
-                        backgroundColor: c.surface2,
-                        borderColor: c.primary,
-                      },
-                      pressed && styles.pressed,
-                    ]}
-                    onPress={showRequestImageOptions}
-                  >
-                    <Text
-                      style={[styles.imagePickerBtnText, { color: c.primary }]}
-                    >
-                      📷{' '}
-                      {requestDialog.imagePreview
-                        ? t('تغيير الصورة')
-                        : t('اختر صورة')}
-                    </Text>
-                  </Pressable>
-                </View>
-
-                <View style={styles.dialogActions}>
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.dialogBtn,
-                      {
-                        backgroundColor: c.surface2,
-                        borderColor: c.border,
-                      },
-                      pressed && styles.pressed,
-                    ]}
-                    onPress={closeRequestDialog}
-                    disabled={isSending}
-                  >
-                    <Text
-                      style={[styles.dialogBtnText, { color: c.grayDark }]}
-                    >
-                      {t('إلغاء')}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    style={({ pressed }) => [
-                      styles.dialogBtn,
-                      {
-                        backgroundColor: c.primary,
-                        borderColor: c.primary,
-                      },
-                      (pressed || isSending) && styles.pressed,
-                    ]}
-                    onPress={handleSendRequest}
-                    disabled={isSending}
-                  >
-                    <Text style={[styles.dialogBtnText, { color: '#FFFFFF' }]}>
-                      {isSending ? t('جاري الإرسال...') : t('إرسال الطلب')}
-                    </Text>
-                  </Pressable>
-                </View>
-              </ScrollView>
+            <View style={[styles.dialogOverlay, { backgroundColor: c.overlay }]}>
+              {renderRequestContent()}
             </View>
           </KeyboardAvoidingView>
-        </View>
+        ) : (
+          <View style={[styles.dialogOverlay, { backgroundColor: c.overlay }]}>
+            {renderRequestContent()}
+          </View>
+        )}
       </Modal>
 
       {/* Delete Dialog */}
@@ -1391,6 +1419,7 @@ export default function StoresScreen() {
         visible={deleteDialog.isOpen}
         transparent
         animationType="fade"
+        statusBarTranslucent
         onRequestClose={() =>
           setDeleteDialog({ isOpen: false, id: null, name: '', type: 'store' })
         }
@@ -1459,6 +1488,7 @@ export default function StoresScreen() {
         visible={successDialog.isOpen}
         transparent
         animationType="fade"
+        statusBarTranslucent
         onRequestClose={() => setSuccessDialog({ isOpen: false, message: '' })}
       >
         <View style={[styles.dialogOverlay, { backgroundColor: c.overlay }]}>
@@ -1498,6 +1528,7 @@ export default function StoresScreen() {
         visible={errorDialog.isOpen}
         transparent
         animationType="fade"
+        statusBarTranslucent
         onRequestClose={() => setErrorDialog({ isOpen: false, message: '' })}
       >
         <View style={[styles.dialogOverlay, { backgroundColor: c.overlay }]}>
@@ -1537,6 +1568,7 @@ export default function StoresScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
+  flex1: { flex: 1 },
   scroll: { flex: 1 },
   scrollContent: { paddingBottom: 20 },
   centerContainer: {
@@ -1821,13 +1853,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 16,
-  },
-  dialogContainer: {
-    width: '100%',
-    maxWidth: 480,
-    maxHeight: '85%',
-    flex: 1,
-    justifyContent: 'center',
   },
   dialog: {
     width: '100%',
