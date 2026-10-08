@@ -345,7 +345,7 @@ export default function CategoriesScreen() {
                 ]}
               />
               <Text style={[styles.pageCount, { color: c.textMuted }]}>
-                {filtered.length} {t('من')} {categories.length} {t('قسم')}
+                 {categories.length} {t('اقسام')}
               </Text>
             </View>
           </View>

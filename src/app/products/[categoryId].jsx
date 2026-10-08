@@ -379,7 +379,7 @@ export default function ProductsByCategoryScreen() {
           <View style={styles.pageHeaderCountRow}>
             <View style={[styles.pageHeaderCountLine, { backgroundColor: c.primary }]} />
             <Text style={[styles.pageCount, { color: c.textMuted }]}>
-              {filtered.length} {t('من')} {products.length} {t('منتج')}
+             {products.length} {t('منتج')}
             </Text>
           </View>
 
