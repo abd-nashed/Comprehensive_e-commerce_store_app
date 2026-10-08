@@ -524,7 +524,7 @@ export default function CartScreen() {
 
       <BottomTabs />
 
-      {/* Checkout Dialog */}
+      {/* ============ Checkout Dialog ============ */}
       <Modal
         visible={checkoutDialog.isOpen}
         transparent
@@ -533,8 +533,7 @@ export default function CartScreen() {
       >
         <View style={[styles.dialogOverlay, { backgroundColor: c.overlay }]}>
           <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             style={styles.dialogContainer}
           >
             <View
@@ -570,6 +569,9 @@ export default function CartScreen() {
                 style={styles.dialogBody}
                 contentContainerStyle={styles.dialogBodyContent}
                 keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="on-drag"
+                showsVerticalScrollIndicator={false}
+                bounces={false}
               >
                 <View
                   style={[
@@ -709,7 +711,7 @@ export default function CartScreen() {
         </View>
       </Modal>
 
-      {/* Success Dialog */}
+      {/* ============ Success Dialog ============ */}
       <Modal
         visible={successDialog.isOpen}
         transparent
@@ -782,7 +784,7 @@ export default function CartScreen() {
         </View>
       </Modal>
 
-      {/* Copy Dialog */}
+      {/* ============ Copy Dialog ============ */}
       <Modal
         visible={copyDialog.isOpen}
         transparent
@@ -821,7 +823,7 @@ export default function CartScreen() {
         </View>
       </Modal>
 
-      {/* Clear Cart Dialog */}
+      {/* ============ Clear Cart Dialog ============ */}
       <Modal
         visible={clearCartDialog.isOpen}
         transparent
@@ -874,7 +876,7 @@ export default function CartScreen() {
         </View>
       </Modal>
 
-      {/* Error Dialog */}
+      {/* ============ Error Dialog ============ */}
       <Modal
         visible={errorDialog.isOpen}
         transparent
@@ -1177,8 +1179,6 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 480,
     maxHeight: '85%',
-    flex: 1,
-    justifyContent: 'center',
   },
   dialog: {
     width: '100%',
