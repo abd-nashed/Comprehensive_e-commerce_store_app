@@ -73,7 +73,7 @@ export default function CartScreen() {
     isOpen: false,
   });
 
-  // ============ Calculations ============
+  //   Calculations
   const total = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
@@ -81,7 +81,7 @@ export default function CartScreen() {
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  // ============ Handlers ============
+  //   Handlers
   const handleRemove = (id) => {
     dispatch(removeFromCart(id));
   };
@@ -182,7 +182,7 @@ export default function CartScreen() {
     router.push('/');
   };
 
-  // ============ Empty Cart ============
+  //   Empty Cart
   if (items.length === 0) {
     return (
       <View style={[styles.root, { backgroundColor: c.bg }]}>
@@ -527,7 +527,7 @@ export default function CartScreen() {
 
       <BottomTabs />
 
-      {/* ============ Checkout Dialog ============ */}
+      {/*   Checkout Dialog   */}
       <Modal
         visible={checkoutDialog.isOpen}
         transparent
@@ -551,7 +551,7 @@ export default function CartScreen() {
         )}
       </Modal>
 
-      {/* ============ Success Dialog ============ */}
+      {/*   Success Dialog   */}
       <Modal
         visible={successDialog.isOpen}
         transparent
@@ -625,7 +625,7 @@ export default function CartScreen() {
         </View>
       </Modal>
 
-      {/* ============ Copy Dialog ============ */}
+      {/*   Copy Dialog   */}
       <Modal
         visible={copyDialog.isOpen}
         transparent
@@ -665,7 +665,7 @@ export default function CartScreen() {
         </View>
       </Modal>
 
-      {/* ============ Clear Cart Dialog ============ */}
+      {/*   Clear Cart Dialog   */}
       <Modal
         visible={clearCartDialog.isOpen}
         transparent
@@ -719,7 +719,7 @@ export default function CartScreen() {
         </View>
       </Modal>
 
-      {/* ============ Error Dialog ============ */}
+      {/*   Error Dialog   */}
       <Modal
         visible={errorDialog.isOpen}
         transparent
@@ -761,7 +761,7 @@ export default function CartScreen() {
     </View>
   );
 
-  // ============ Checkout Content Renderer ============
+  //   Checkout Content Renderer
   function renderCheckoutContent() {
     return (
       <View
@@ -1014,7 +1014,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
 
-  // ============ Cart Items ============
+  //   Cart Items 
   itemsList: {
     paddingHorizontal: 20,
     gap: 10,
@@ -1097,7 +1097,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
 
-  // ============ Summary ============
+  //   Summary
   summary: {
     marginHorizontal: 20,
     padding: 20,
@@ -1151,7 +1151,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
 
-  // ============ Tracking Box ============
+  //   Tracking Box
   trackingBox: {
     padding: 16,
     borderRadius: 10,
@@ -1188,7 +1188,7 @@ const styles = StyleSheet.create({
   copyBtnText: { fontSize: 16 },
   trackingHint: { fontSize: 11, textAlign: 'center' },
 
-  // ============ Dialogs ============
+  //   Dialogs
   dialogOverlay: {
     flex: 1,
     alignItems: 'center',

@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosInstance from "../api/axiosInstance";  // ⭐ مسار مصحّح
+import { deleteWithVerification } from '../api/deleteWithVerification';
 
-// ============ Thunks ============
 
 // 1. جلب كل المتاجر
 export const fetchStores = createAsyncThunk(
@@ -52,8 +52,11 @@ export const deleteStore = createAsyncThunk(
   "stores/delete",
   async (id, { rejectWithValue }) => {
     try {
-      await axiosInstance.delete(`/delete_store/${id}/`);
-      return id;
+      return await deleteWithVerification(
+        `/delete_store/${id}/`,
+        '/get_stores/',
+        id
+      );
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.error || "فشل حذف المتجر"
@@ -115,8 +118,11 @@ export const rejectStoreRequest = createAsyncThunk(
   "stores/rejectRequest",
   async (id, { rejectWithValue }) => {
     try {
-      await axiosInstance.delete(`/reject_store_request/${id}/`);
-      return id;
+      return await deleteWithVerification(
+        `/reject_store_request/${id}/`,
+        '/get_store_requests/',
+        id
+      );
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.error || "فشل رفض الطلب"
@@ -125,7 +131,7 @@ export const rejectStoreRequest = createAsyncThunk(
   }
 );
 
-// ============ Slice ============
+//   Slice
 const storesSlice = createSlice({
   name: "stores",
   initialState: {
@@ -142,7 +148,7 @@ const storesSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // ========== Fetch Stores ==========
+      //   Fetch Stores
       .addCase(fetchStores.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -156,7 +162,7 @@ const storesSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Add Store ==========
+      //   Add Store
       .addCase(addStore.fulfilled, (state, action) => {
         state.stores.unshift(action.payload);
       })
@@ -164,7 +170,7 @@ const storesSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Update Store ==========
+      //   Update Store
       .addCase(updateStore.fulfilled, (state, action) => {
         state.stores = state.stores.map((s) =>
           s.id === action.payload.id ? action.payload : s
@@ -174,7 +180,7 @@ const storesSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Delete Store ==========
+      //   Delete Store
       .addCase(deleteStore.fulfilled, (state, action) => {
         state.stores = state.stores.filter((s) => s.id !== action.payload);
       })
@@ -182,7 +188,7 @@ const storesSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Fetch Requests ==========
+      //   Fetch Requests
       .addCase(fetchStoreRequests.pending, (state) => {
         state.isLoading = true;
       })
@@ -195,7 +201,7 @@ const storesSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Send Request ==========
+      //   Send Request
       .addCase(sendStoreRequest.pending, (state) => {
         state.isSending = true;
       })
@@ -208,7 +214,7 @@ const storesSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Approve Request ==========
+      //   Approve Request
       .addCase(approveStoreRequest.fulfilled, (state, action) => {
         state.requests = state.requests.filter(
           (r) => r.id !== action.payload.id
@@ -219,7 +225,7 @@ const storesSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Reject Request ==========
+      //   Reject Request
       .addCase(rejectStoreRequest.fulfilled, (state, action) => {
         state.requests = state.requests.filter((r) => r.id !== action.payload);
       })

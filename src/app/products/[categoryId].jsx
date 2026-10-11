@@ -33,6 +33,21 @@ import {
 } from '@/store/slices/productsSlice';
 
 const API_URL = 'https://abdurrazzaq.pythonanywhere.com';
+const EXTRA_IMAGE_FIELDS = [
+  'image_1',
+  'image_2',
+  'image_3',
+  'image_4',
+  'image_5',
+];
+
+const getImageUrl = (image) => {
+  if (!image || typeof image !== 'string') return '';
+  return image.startsWith('http') ? image : `${API_URL}${image}`;
+};
+
+const getRelationId = (relation) =>
+  relation && typeof relation === 'object' ? relation.id || '' : relation || '';
 
 export default function ProductsByCategoryScreen() {
   const router = useRouter();
@@ -76,7 +91,18 @@ export default function ProductsByCategoryScreen() {
     is_active: true,
     main_image: null,
     main_imagePreview: '',
+    image_1: null,
+    image_1Preview: '',
+    image_2: null,
+    image_2Preview: '',
+    image_3: null,
+    image_3Preview: '',
+    image_4: null,
+    image_4Preview: '',
+    image_5: null,
+    image_5Preview: '',
   });
+  const [activePicker, setActivePicker] = useState(null);
 
   const [deleteDialog, setDeleteDialog] = useState({
     isOpen: false,
@@ -110,21 +136,39 @@ export default function ProductsByCategoryScreen() {
       return a.is_active ? -1 : 1;
     });
 
-  // ⭐ خيارات الصورة
-  const showImageOptions = () => {
+  const showImageOptions = (field) => {
     Alert.alert(
       t('اختر صورة'),
       t('من أين تريد اختيار الصورة؟'),
       [
-        { text: `📷 ${t('الكاميرا')}`, onPress: openCamera },
-        { text: `🖼️ ${t('المعرض')}`, onPress: openGallery },
+        { text: `📷 ${t('الكاميرا')}`, onPress: () => openCamera(field) },
+        { text: `🖼️ ${t('المعرض')}`, onPress: () => openGallery(field) },
         { text: t('إلغاء'), style: 'cancel' },
       ],
       { cancelable: true }
     );
   };
 
-  const openCamera = async () => {
+ const setSelectedImage = (field, asset, source) => {
+  if (!asset?.uri) return;
+
+  const uriParts = asset.uri.split('.');
+  const extension = uriParts[uriParts.length - 1]?.split('?')[0] || 'jpg';
+
+  const file = {
+    uri: asset.uri,
+    type: 'image/jpeg',
+    name: asset.fileName || `${source}_${field}_${Date.now()}.${extension}`,
+  };
+
+  setFormDialog((current) => ({
+    ...current,
+    [field]: file,
+    [`${field}Preview`]: asset.uri,
+  }));
+};
+
+  const openCamera = async (field) => {
     try {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== 'granted') {
@@ -133,30 +177,21 @@ export default function ProductsByCategoryScreen() {
       }
 
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,
       });
 
       if (!result.canceled && result.assets && result.assets[0]) {
-        const asset = result.assets[0];
-        setFormDialog({
-          ...formDialog,
-          main_image: {
-            uri: asset.uri,
-            type: 'image/jpeg',
-            name: asset.fileName || `camera_${Date.now()}.jpg`,
-          },
-          main_imagePreview: asset.uri,
-        });
+        setSelectedImage(field, result.assets[0], 'camera');
       }
     } catch (err) {
       Alert.alert(t('خطأ'), t('فشل فتح الكاميرا'));
     }
   };
 
-  const openGallery = async () => {
+  const openGallery = async (field) => {
     try {
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -166,23 +201,14 @@ export default function ProductsByCategoryScreen() {
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,
       });
 
       if (!result.canceled && result.assets && result.assets[0]) {
-        const asset = result.assets[0];
-        setFormDialog({
-          ...formDialog,
-          main_image: {
-            uri: asset.uri,
-            type: 'image/jpeg',
-            name: asset.fileName || `gallery_${Date.now()}.jpg`,
-          },
-          main_imagePreview: asset.uri,
-        });
+        setSelectedImage(field, result.assets[0], 'gallery');
       }
     } catch (err) {
       Alert.alert(t('خطأ'), t('فشل فتح معرض الصور'));
@@ -206,7 +232,18 @@ export default function ProductsByCategoryScreen() {
       is_active: true,
       main_image: null,
       main_imagePreview: '',
+      image_1: null,
+      image_1Preview: '',
+      image_2: null,
+      image_2Preview: '',
+      image_3: null,
+      image_3Preview: '',
+      image_4: null,
+      image_4Preview: '',
+      image_5: null,
+      image_5Preview: '',
     });
+    setActivePicker(null);
   };
 
   const openEditDialog = (product) => {
@@ -219,16 +256,25 @@ export default function ProductsByCategoryScreen() {
       description: product.description || '',
       price: product.price || '',
       stock: product.stock || '',
-      category: product.category || categoryId || '',
-      store: product.store || '',
+      category: getRelationId(product.category) || categoryId || '',
+      store: getRelationId(product.store),
       has_discount: product.has_discount || false,
       discount_percent: product.discount_percent || '',
       is_active: product.is_active ?? true,
       main_image: null,
-      main_imagePreview: product.main_image?.startsWith('http')
-        ? product.main_image
-        : `${API_URL}${product.main_image}`,
+      main_imagePreview: getImageUrl(product.main_image),
+      image_1: null,
+      image_1Preview: getImageUrl(product.image_1),
+      image_2: null,
+      image_2Preview: getImageUrl(product.image_2),
+      image_3: null,
+      image_3Preview: getImageUrl(product.image_3),
+      image_4: null,
+      image_4Preview: getImageUrl(product.image_4),
+      image_5: null,
+      image_5Preview: getImageUrl(product.image_5),
     });
+    setActivePicker(null);
   };
 
   const closeFormDialog = () => {
@@ -247,7 +293,18 @@ export default function ProductsByCategoryScreen() {
       is_active: true,
       main_image: null,
       main_imagePreview: '',
+      image_1: null,
+      image_1Preview: '',
+      image_2: null,
+      image_2Preview: '',
+      image_3: null,
+      image_3Preview: '',
+      image_4: null,
+      image_4Preview: '',
+      image_5: null,
+      image_5Preview: '',
     });
+    setActivePicker(null);
   };
 
   const handleSave = async () => {
@@ -255,6 +312,14 @@ export default function ProductsByCategoryScreen() {
 
     if (!formDialog.name.trim()) {
       setErrorDialog({ isOpen: true, message: t('يرجى إدخال اسم المنتج') });
+      return;
+    }
+    if (!formDialog.category) {
+      setErrorDialog({ isOpen: true, message: t('يرجى اختيار القسم') });
+      return;
+    }
+    if (formDialog.mode === 'add' && !formDialog.main_image) {
+      setErrorDialog({ isOpen: true, message: t('الصورة الرئيسية مطلوبة') });
       return;
     }
 
@@ -282,6 +347,16 @@ export default function ProductsByCategoryScreen() {
         name: formDialog.main_image.name || 'image.jpg',
       });
     }
+    EXTRA_IMAGE_FIELDS.forEach((field) => {
+      const image = formDialog[field];
+      if (image) {
+        formData.append(field, {
+          uri: image.uri,
+          type: image.type || 'image/jpeg',
+          name: image.name || `${field}.jpg`,
+        });
+      }
+    });
 
     let result;
     if (formDialog.mode === 'add') {
@@ -749,6 +824,173 @@ export default function ProductsByCategoryScreen() {
                   />
                 </View>
 
+                <View style={styles.formGroup}>
+                  <Text style={[styles.formLabel, { color: c.grayDark }]}>
+                    {t('القسم')}
+                  </Text>
+                  <Pressable
+                    style={[
+                      styles.relationSelector,
+                      {
+                        backgroundColor: c.surface2,
+                        borderColor: c.border,
+                      },
+                    ]}
+                    onPress={() =>
+                      setActivePicker(activePicker === 'category' ? null : 'category')
+                    }
+                  >
+                    <Text style={[styles.relationSelectorText, { color: c.text }]}>
+                      {categories.find(
+                        (category) =>
+                          String(category.id) === String(formDialog.category)
+                      )?.name || t('اختر القسم')}
+                    </Text>
+                    <Text style={{ color: c.textMuted }}>
+                      {activePicker === 'category' ? '▲' : '▼'}
+                    </Text>
+                  </Pressable>
+                  {activePicker === 'category' && (
+                    <View
+                      style={[
+                        styles.relationOptions,
+                        {
+                          backgroundColor: c.surface2,
+                          borderColor: c.border,
+                        },
+                      ]}
+                    >
+                      <ScrollView nestedScrollEnabled>
+                        {categories.map((category) => (
+                          <Pressable
+                            key={category.id}
+                            style={[
+                              styles.relationOption,
+                              String(category.id) ===
+                                String(formDialog.category) && {
+                                backgroundColor: c.primary,
+                              },
+                            ]}
+                            onPress={() => {
+                              setFormDialog({
+                                ...formDialog,
+                                category: String(category.id),
+                              });
+                              setActivePicker(null);
+                            }}
+                          >
+                            <Text
+                              style={[
+                                styles.relationOptionText,
+                                {
+                                  color:
+                                    String(category.id) ===
+                                    String(formDialog.category)
+                                      ? '#FFFFFF'
+                                      : c.text,
+                                },
+                              ]}
+                            >
+                              {category.name}
+                            </Text>
+                          </Pressable>
+                        ))}
+                      </ScrollView>
+                    </View>
+                  )}
+                </View>
+
+                <View style={styles.formGroup}>
+                  <Text style={[styles.formLabel, { color: c.grayDark }]}>
+                    {t('المتجر')} ({t('اختياري')})
+                  </Text>
+                  <Pressable
+                    style={[
+                      styles.relationSelector,
+                      {
+                        backgroundColor: c.surface2,
+                        borderColor: c.border,
+                      },
+                    ]}
+                    onPress={() =>
+                      setActivePicker(activePicker === 'store' ? null : 'store')
+                    }
+                  >
+                    <Text style={[styles.relationSelectorText, { color: c.text }]}>
+                      {stores.find(
+                        (store) =>
+                          String(store.id) === String(formDialog.store)
+                      )?.name || t('بدون متجر')}
+                    </Text>
+                    <Text style={{ color: c.textMuted }}>
+                      {activePicker === 'store' ? '▲' : '▼'}
+                    </Text>
+                  </Pressable>
+                  {activePicker === 'store' && (
+                    <View
+                      style={[
+                        styles.relationOptions,
+                        {
+                          backgroundColor: c.surface2,
+                          borderColor: c.border,
+                        },
+                      ]}
+                    >
+                      <ScrollView nestedScrollEnabled>
+                        <Pressable
+                          style={styles.relationOption}
+                          onPress={() => {
+                            setFormDialog({ ...formDialog, store: '' });
+                            setActivePicker(null);
+                          }}
+                        >
+                          <Text
+                            style={[
+                              styles.relationOptionText,
+                              { color: c.textMuted },
+                            ]}
+                          >
+                            {t('بدون متجر')}
+                          </Text>
+                        </Pressable>
+                        {stores.map((store) => (
+                          <Pressable
+                            key={store.id}
+                            style={[
+                              styles.relationOption,
+                              String(store.id) === String(formDialog.store) && {
+                                backgroundColor: c.primary,
+                              },
+                            ]}
+                            onPress={() => {
+                              setFormDialog({
+                                ...formDialog,
+                                store: String(store.id),
+                              });
+                              setActivePicker(null);
+                            }}
+                          >
+                            <Text
+                              style={[
+                                styles.relationOptionText,
+                                {
+                                  color:
+                                    String(store.id) ===
+                                    String(formDialog.store)
+                                      ? '#FFFFFF'
+                                      : c.text,
+                                },
+                              ]}
+                            >
+                              {store.name}
+                            </Text>
+                          </Pressable>
+                        ))}
+                      </ScrollView>
+                    </View>
+                  )}
+                </View>
+
                 <View style={styles.formRow}>
                   <View style={[styles.formGroup, styles.formGroupHalf]}>
                     <Text style={[styles.formLabel, { color: c.grayDark }]}>
@@ -895,7 +1137,6 @@ export default function ProductsByCategoryScreen() {
                   </Text>
                 </Pressable>
 
-                {/* ⭐ الصورة الرئيسية */}
                 <View style={styles.formGroup}>
                   <Text style={[styles.formLabel, { color: c.grayDark }]}>
                     {t('الصورة الرئيسية')}
@@ -935,7 +1176,7 @@ export default function ProductsByCategoryScreen() {
                       },
                       pressed && styles.pressed,
                     ]}
-                    onPress={showImageOptions}
+                    onPress={() => showImageOptions('main_image')}
                   >
                     <Text
                       style={[styles.imagePickerBtnText, { color: c.primary }]}
@@ -943,9 +1184,65 @@ export default function ProductsByCategoryScreen() {
                       📷{' '}
                       {formDialog.main_imagePreview
                         ? t('تغيير الصورة')
-                        : t('اختر صورة')}
+                        : t('اختر صورة')} {formDialog.mode === 'add' ? '*' : ''}
                     </Text>
                   </Pressable>
+                </View>
+
+                <View style={styles.formGroup}>
+                  <Text style={[styles.formLabel, { color: c.grayDark }]}>
+                    {t('صور إضافية')} ({t('حتى 5 صور')})
+                  </Text>
+                  <View style={styles.extraImagesGrid}>
+                    {EXTRA_IMAGE_FIELDS.map((field, index) => {
+                      const preview = formDialog[`${field}Preview`];
+                      return (
+                        <Pressable
+                          key={field}
+                          style={[
+                            styles.extraImageOption,
+                            {
+                              backgroundColor: c.surface2,
+                              borderColor: c.border,
+                            },
+                          ]}
+                          onPress={() => showImageOptions(field)}
+                          accessibilityRole="button"
+                          accessibilityLabel={`${t('صورة إضافية')} ${index + 1}`}
+                        >
+                          {preview ? (
+                            <Image
+                              source={{ uri: preview }}
+                              style={styles.extraImagePreview}
+                              resizeMode="cover"
+                            />
+                          ) : (
+                            <Text
+                              style={[
+                                styles.extraImageAddIcon,
+                                {
+                                  color: c.primary,
+                                  borderColor: c.primary,
+                                },
+                              ]}
+                            >
+                              +
+                            </Text>
+                          )}
+                          <Text
+                            style={[
+                              styles.extraImageLabel,
+                              { color: c.textMuted },
+                            ]}
+                          >
+                            {preview
+                              ? t('تغيير')
+                              : `${t('صورة')} ${index + 1}`}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
                 </View>
 
                 <View style={styles.dialogActions}>
@@ -1559,6 +1856,68 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     letterSpacing: 0.5,
+  },
+  relationSelector: {
+    minHeight: 48,
+    paddingHorizontal: 14,
+    borderWidth: 1,
+    borderRadius: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  relationSelectorText: {
+    fontSize: 14,
+    flex: 1,
+  },
+  relationOptions: {
+    maxHeight: 180,
+    borderWidth: 1,
+    borderRadius: 6,
+    overflow: 'hidden',
+    marginTop: 4,
+  },
+  relationOption: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: 14,
+  },
+  relationOptionText: {
+    fontSize: 14,
+  },
+  extraImagesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  extraImageOption: {
+    width: '30%',
+    minHeight: 104,
+    padding: 8,
+    borderWidth: 1,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  extraImagePreview: {
+    width: 64,
+    height: 64,
+    borderRadius: 6,
+  },
+  extraImageAddIcon: {
+    width: 64,
+    height: 64,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+    fontSize: 36,
+    borderWidth: 1,
+    borderRadius: 6,
+    overflow: 'hidden',
+  },
+  extraImageLabel: {
+    fontSize: 11,
+    textAlign: 'center',
   },
 
   toggleLabel: {

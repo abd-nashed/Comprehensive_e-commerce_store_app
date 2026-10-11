@@ -38,12 +38,12 @@ export default function OffersScreen() {
     dispatch(fetchProducts());
   }, [dispatch]);
 
-  // ============ Filter: Only Discounted ============
+  //   Filter: Only Discounted
   const discountedProducts = products.filter(
     (p) => p.has_discount && p.discount_percent
   );
 
-  // ============ Search ============
+  //   Search
   const filtered = discountedProducts.filter((p) => {
     const searchLower = search.toLowerCase();
     const name = (p.name || '').toLowerCase();
@@ -51,7 +51,7 @@ export default function OffersScreen() {
     return name.includes(searchLower) || category.includes(searchLower);
   });
 
-  // ============ Loading ============
+  //   Loading
   if (isLoading && products.length === 0) {
     return (
       <View style={[styles.root, { backgroundColor: c.bg }]}>
@@ -76,7 +76,7 @@ export default function OffersScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* ============ Header ============ */}
+        {/*   Header   */}
         <View style={styles.pageHeader}>
           <View style={styles.titleRow}>
             <Text style={[styles.title, { color: c.text }]}>
@@ -102,7 +102,7 @@ export default function OffersScreen() {
           </View>
         </View>
 
-        {/* ============ Error ============ */}
+        {/*   Error   */}
         {error && (
           <View
             style={[
@@ -116,7 +116,7 @@ export default function OffersScreen() {
           </View>
         )}
 
-        {/* ============ Search ============ */}
+        {/*   Search   */}
         <View
           style={[
             styles.searchContainer,
@@ -141,7 +141,7 @@ export default function OffersScreen() {
           )}
         </View>
 
-        {/* ============ Count ============ */}
+        {/*   Count   */}
         <View style={styles.countRow}>
           <View
             style={[styles.countLine, { backgroundColor: c.danger }]}
@@ -151,7 +151,7 @@ export default function OffersScreen() {
           </Text>
         </View>
 
-        {/* ============ Grid ============ */}
+        {/*   Grid   */}
         {filtered.length === 0 ? (
           <View
             style={[
@@ -391,7 +391,7 @@ const styles = StyleSheet.create({
   },
   loadingText: { fontSize: 14 },
 
-  // ============ Page Header ============
+  //   Page Header
   pageHeader: {
     paddingHorizontal: 20,
     paddingTop: 24,
@@ -434,7 +434,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  // ============ Error Banner ============
+  //   Error Banner
   errorBanner: {
     marginHorizontal: 20,
     marginTop: 12,
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 
-  // ============ Search ============
+  //   Search
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 
-  // ============ Count ============
+  //   Count
   countRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
 
-  // ============ Empty ============
+  //   Empty
   empty: {
     marginHorizontal: 20,
     padding: 40,
@@ -533,7 +533,7 @@ const styles = StyleSheet.create({
   },
   pressed: { opacity: 0.7 },
 
-  // ============ Grid ============
+  //   Grid
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',

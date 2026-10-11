@@ -1,25 +1,20 @@
-// ============================================
-// Design System - E-Commerce Store (TechHaven)
-// Dark-first + Light Mode - React Native
-// ============================================
-
 export const colors = {
   dark: {
-    // ============ Primary (برتقالي ناري) ============
+    //   Primary
     primary: '#FF6B00',
     primaryDark: '#E55A00',
     primaryLight: '#FF8C1A',
     primaryBg: 'rgba(255, 107, 0, 0.12)',
     primaryGlow: 'rgba(255, 107, 0, 0.35)',
 
-    // ============ Secondary / Text ============
+    //   Secondary / Text
     secondary: '#FFFFFF',
     gray: '#A0A0A0',
     grayLight: '#6B6B6B',
     grayDark: '#D4D4D4',
     textMuted: '#8A8A8A',
 
-    // ============ Backgrounds ============
+    //   Backgrounds
     bg: '#0A0A0A',
     bgLight: '#141414',
     surface: '#141414',
@@ -27,7 +22,7 @@ export const colors = {
     surface3: '#262626',
     white: '#141414',
 
-    // ============ Status ============
+    //   Status
     success: '#22C55E',
     successBg: 'rgba(34, 197, 94, 0.12)',
     warning: '#FBBF24',
@@ -38,36 +33,36 @@ export const colors = {
     info: '#3B82F6',
     infoBg: 'rgba(59, 130, 246, 0.12)',
 
-    // ============ Borders ============
+    //   Borders
     border: '#262626',
     borderDark: '#333333',
     borderLight: '#1A1A1A',
 
-    // ============ Overlay ============
+    //   Overlay
     overlay: 'rgba(0, 0, 0, 0.75)',
 
-    // ============ Misc ============
+    //   Misc
     text: '#FFFFFF',
     textInverse: '#0A0A0A',
     transparent: 'transparent',
   },
 
   light: {
-    // ============ Primary ============
+    //   Primary
     primary: '#FF6B00',
     primaryDark: '#E55A00',
     primaryLight: '#FF8C1A',
     primaryBg: 'rgba(255, 107, 0, 0.08)',
     primaryGlow: 'rgba(255, 107, 0, 0.25)',
 
-    // ============ Secondary / Text ============
+    //   Secondary / Text
     secondary: '#0A0A0A',
     gray: '#6B6B6B',
     grayLight: '#A0A0A0',
     grayDark: '#333333',
     textMuted: '#8A8A8A',
 
-    // ============ Backgrounds ============
+    //   Backgrounds
     bg: '#F5F5F5',
     bgLight: '#FFFFFF',
     surface: '#FFFFFF',
@@ -75,7 +70,7 @@ export const colors = {
     surface3: '#EFEFEF',
     white: '#FFFFFF',
 
-    // ============ Status ============
+    //   Status
     success: '#16A34A',
     successBg: '#ECFDF5',
     warning: '#D97706',
@@ -86,25 +81,25 @@ export const colors = {
     info: '#2563EB',
     infoBg: '#EFF6FF',
 
-    // ============ Borders ============
+    //   Borders
     border: '#E5E5E5',
     borderDark: '#D4D4D4',
     borderLight: '#F0F0F0',
 
-    // ============ Overlay ============
+    //   Overlay
     overlay: 'rgba(0, 0, 0, 0.5)',
 
-    // ============ Misc ============
+    //   Misc
     text: '#0A0A0A',
     textInverse: '#FFFFFF',
     transparent: 'transparent',
   },
 };
 
-// ============ Typography ============
+//   Typography
 export const typography = {
   fontFamily: {
-    regular: 'System',    // يمكن تغييره لاحقاً لخط مخصص
+    regular: 'System',
     medium: 'System',
     bold: 'System',
   },
@@ -133,7 +128,7 @@ export const typography = {
   },
 };
 
-// ============ Spacing ============
+//   Spacing
 export const spacing = {
   xs: 4,
   sm: 8,
@@ -145,7 +140,7 @@ export const spacing = {
   '4xl': 96,
 };
 
-// ============ Border Radius ============
+//   Border Radius
 export const radius = {
   xs: 2,
   sm: 4,
@@ -156,7 +151,7 @@ export const radius = {
   full: 9999,
 };
 
-// ============ Shadows (iOS + Android) ============
+//   Shadows (iOS + Android)
 export const shadows = {
   sm: {
     shadowColor: '#000',
@@ -195,15 +190,13 @@ export const shadows = {
   }),
 };
 
-// ============ Transitions (لا تُدعم في RN — استخدم Animated) ============
-// هذه فقط للرجوع — لن تُستخدم مباشرة
 export const transitions = {
   fast: 150,
   base: 250,
   slow: 400,
 };
 
-// ============ Container Widths ============
+//   Container Widths
 export const containers = {
   sm: 640,
   md: 768,
@@ -212,7 +205,7 @@ export const containers = {
   '2xl': 1440,
 };
 
-// ============ Z-Index ============
+//   Z-Index
 export const zIndex = {
   dropdown: 1000,
   sticky: 1020,
@@ -221,7 +214,7 @@ export const zIndex = {
   tooltip: 1050,
 };
 
-// ============ Theme Object الكامل ============
+//   Theme Object الكامل
 export const themes = {
   dark: {
     colors: colors.dark,
@@ -247,5 +240,4 @@ export const themes = {
   },
 };
 
-// ============ Export افتراضي ============
 export default themes;

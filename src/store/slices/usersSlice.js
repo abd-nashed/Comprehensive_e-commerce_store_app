@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axiosInstance from '../api/axiosInstance';  // ⭐ مسار مصحّح
+import axiosInstance from '../api/axiosInstance';
+import { deleteWithVerification } from '../api/deleteWithVerification';
 
-// ============ Thunks ============
 
 // 0. تسجيل الدخول
 export const verifySuperAdmin = createAsyncThunk(
@@ -14,7 +14,6 @@ export const verifySuperAdmin = createAsyncThunk(
         password,
       });
 
-      // ⭐ حفظ التوكن في AsyncStorage
       if (data.access && data.refresh) {
         await AsyncStorage.setItem('access_token', data.access);
         await AsyncStorage.setItem('refresh_token', data.refresh);
@@ -77,8 +76,11 @@ export const deleteUser = createAsyncThunk(
   'users/delete',
   async (id, { rejectWithValue }) => {
     try {
-      await axiosInstance.delete(`/delete_user/${id}/`);
-      return id;
+      return await deleteWithVerification(
+        `/delete_user/${id}/`,
+        '/get_users/',
+        id
+      );
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.error || 'فشل حذف المستخدم'
@@ -87,7 +89,7 @@ export const deleteUser = createAsyncThunk(
   }
 );
 
-// ⭐ Thunk لتحميل المستخدم من AsyncStorage عند بدء التطبيق
+// 5. تحميل المستخدم الحالي من AsyncStorage
 export const loadCurrentUser = createAsyncThunk(
   'users/loadCurrentUser',
   async () => {
@@ -96,35 +98,55 @@ export const loadCurrentUser = createAsyncThunk(
   }
 );
 
-// ============ Slice ============
+//  6. تسجيل الخروج — يحذف من AsyncStorage أيضًا
+export const logoutUser = createAsyncThunk(
+  'users/logoutUser',
+  async (_, { rejectWithValue }) => {
+    try {
+      await AsyncStorage.multiRemove([
+        'currentUser',
+        'access_token',
+        'refresh_token',
+      ]);
+      return true;
+    } catch (error) {
+      return rejectWithValue('فشل تسجيل الخروج');
+    }
+  }
+);
+
+
+//   Slice
 const usersSlice = createSlice({
   name: 'users',
   initialState: {
     users: [],
     isLoading: false,
     error: null,
-    // ⭐ currentUser يبدأ null — سيُحمَّل من AsyncStorage لاحقاً
     currentUser: null,
-    isReady: false,  // ⭐ لمعرفة أن التحميل انتهى
+    isReady: false,
   },
   reducers: {
     clearError: (state) => {
       state.error = null;
     },
 
-    // ⭐ تسجيل الخروج (نستخدم AsyncStorage — يحتاج async)
     logout: (state) => {
       state.currentUser = null;
       state.users = [];
       state.error = null;
-      // ملاحظة: AsyncStorage هنا لا يمكن استخدامه مباشرة في reducer
-      // لأنه reducer يجب أن يكون sync
-      // الحل: نستخدم thunk منفصل للتنظيف
+      state.isReady = true;
+
+      AsyncStorage.multiRemove([
+        'currentUser',
+        'access_token',
+        'refresh_token',
+      ]);
     },
   },
   extraReducers: (builder) => {
     builder
-      // ========== Load Current User ==========
+      //   Load Current User
       .addCase(loadCurrentUser.fulfilled, (state, action) => {
         state.currentUser = action.payload;
         state.isReady = true;
@@ -133,7 +155,19 @@ const usersSlice = createSlice({
         state.isReady = true;
       })
 
-      // ========== Verify SuperAdmin ==========
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.currentUser = null;
+        state.users = [];
+        state.error = null;
+        state.isReady = true;
+      })
+      .addCase(logoutUser.rejected, (state, action) => {
+        state.currentUser = null;
+        state.users = [];
+        state.error = action.payload;
+      })
+
+      //   Verify SuperAdmin
       .addCase(verifySuperAdmin.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -145,7 +179,6 @@ const usersSlice = createSlice({
           role: action.payload.role,
         };
         state.currentUser = user;
-        // ⭐ حفظ في AsyncStorage
         AsyncStorage.setItem('currentUser', JSON.stringify(user));
       })
       .addCase(verifySuperAdmin.rejected, (state, action) => {
@@ -153,7 +186,7 @@ const usersSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Verify Me ==========
+      //   Verify Me
       .addCase(verifyMe.fulfilled, (state, action) => {
         const user = {
           username: action.payload.username,
@@ -166,7 +199,6 @@ const usersSlice = createSlice({
         state.currentUser = null;
         state.users = [];
         state.error = null;
-        // ⭐ مسح من AsyncStorage
         AsyncStorage.multiRemove([
           'currentUser',
           'access_token',
@@ -174,7 +206,7 @@ const usersSlice = createSlice({
         ]);
       })
 
-      // ========== Fetch ==========
+      //   Fetch
       .addCase(fetchUsers.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -188,7 +220,7 @@ const usersSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Add ==========
+      //   Add
       .addCase(addUser.fulfilled, (state, action) => {
         state.users.unshift(action.payload);
       })
@@ -196,7 +228,7 @@ const usersSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Delete ==========
+      //   Delete
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.users = state.users.filter((u) => u.id !== action.payload);
       })
@@ -206,16 +238,5 @@ const usersSlice = createSlice({
   },
 });
 
-// ⭐ Thunk لتسجيل الخروج (لأن AsyncStorage async)
-export const logoutUser = () => async (dispatch) => {
-  await AsyncStorage.multiRemove([
-    'currentUser',
-    'access_token',
-    'refresh_token',
-  ]);
-  dispatch(logout());
-};
-
-// ⭐ تصدير
 export const { clearError, logout } = usersSlice.actions;
 export default usersSlice.reducer;

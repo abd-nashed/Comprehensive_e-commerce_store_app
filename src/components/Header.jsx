@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/context/ThemeContext';
-import { logout } from '../store/slices/usersSlice';
+import { logoutUser } from '../store/slices/usersSlice';
 import { toggleLanguage } from '../store/slices/langugeSlice';
 
 export default function Header() {
@@ -36,8 +36,8 @@ export default function Header() {
   const openLogoutDialog = () => setShowLogoutDialog(true);
   const cancelLogout = () => setShowLogoutDialog(false);
 
-  const confirmLogout = () => {
-    dispatch(logout());
+  const confirmLogout = async () => {
+    await dispatch(logoutUser());
     setShowLogoutDialog(false);
     setIsMenuOpen(false);
     router.replace('/');
@@ -223,7 +223,11 @@ export default function Header() {
                     style={styles.drawerItem}
                     onPress={() => dispatch(toggleLanguage())}
                     accessibilityRole="button"
-                    accessibilityLabel={lang === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
+                    accessibilityLabel={
+                      lang === 'ar'
+                        ? 'Switch to English'
+                        : 'التبديل إلى العربية'
+                    }
                   >
                     <Text style={styles.drawerItemIcon}>🌐</Text>
                     <Text style={[styles.drawerItemText, { color: c.text }]}>

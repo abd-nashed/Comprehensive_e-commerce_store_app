@@ -157,7 +157,7 @@ export default function DashboardScreen() {
     return role;
   };
 
-  // ============ Auth Screen ============
+  //   Auth Screen
   if (!isAuthenticated) {
     return (
       <View style={[styles.root, { backgroundColor: c.bg }]}>
@@ -244,7 +244,7 @@ export default function DashboardScreen() {
     );
   }
 
-  // ============ Dashboard ============
+  //   Dashboard
   return (
     <View style={[styles.root, { backgroundColor: c.bg }]}>
       <Header />

@@ -19,6 +19,44 @@ import { addToCart } from '@/store/slices/cartSlice';
 import axiosInstance from '@/store/api/axiosInstance';
 
 const API_URL = 'https://abdurrazzaq.pythonanywhere.com';
+const EXTRA_IMAGE_FIELDS = [
+  'image_1',
+  'image_2',
+  'image_3',
+  'image_4',
+  'image_5',
+];
+
+const getImageUrl = (image) => {
+  let path = '';
+
+  if (typeof image === 'string') {
+    path = image;
+  } else if (image && typeof image === 'object') {
+    path = image.url || image.uri || image.image || image.src || '';
+  }
+
+  if (!path || typeof path !== 'string') return '';
+  if (/^https?:\/\//i.test(path)) return path;
+
+  return `${API_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+};
+
+const getProductImages = (product) => {
+  if (!product) return [];
+
+  const rawImages = [
+    product.main_image,
+    ...EXTRA_IMAGE_FIELDS.map((field) => product[field]),
+  ];
+
+  const urls = rawImages
+    .map(getImageUrl)
+    .filter((img) => img && img.trim().length > 0);
+
+  // إزالة التكرار مع الحفاظ على الترتيب
+  return [...new Set(urls)];
+};
 
 export default function ProductDetailScreen() {
   const router = useRouter();
@@ -34,6 +72,7 @@ export default function ProductDetailScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeImage, setActiveImage] = useState('');
+  const [thumbnailSize, setThumbnailSize] = useState(0);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -44,10 +83,9 @@ export default function ProductDetailScreen() {
         );
         setProduct(response.data);
 
-        const main = response.data.main_image?.startsWith('http')
-          ? response.data.main_image
-          : `${API_URL}${response.data.main_image}`;
-        setActiveImage(main);
+        const images = getProductImages(response.data);
+        setActiveImage(images[0] || '');
+        setError(null);
       } catch (err) {
         setError(err.response?.data?.error || t('فشل جلب المنتج'));
       } finally {
@@ -55,33 +93,8 @@ export default function ProductDetailScreen() {
       }
     };
 
-    fetchProduct();
+    if (productId) fetchProduct();
   }, [productId, t]);
-
-  const getAllImages = () => {
-    if (!product) return [];
-    const images = [];
-
-    if (product.main_image) {
-      images.push(
-        product.main_image.startsWith('http')
-          ? product.main_image
-          : `${API_URL}${product.main_image}`
-      );
-    }
-
-    ['image_1', 'image_2', 'image_3', 'image_4', 'image_5'].forEach((key) => {
-      if (product[key]) {
-        images.push(
-          product[key].startsWith('http')
-            ? product[key]
-            : `${API_URL}${product[key]}`
-        );
-      }
-    });
-
-    return images;
-  };
 
   if (isLoading) {
     return (
@@ -125,7 +138,7 @@ export default function ProductDetailScreen() {
   }
 
   const hasDiscount = product.has_discount && product.discount_percent;
-  const allImages = getAllImages();
+  const allImages = getProductImages(product);
   const publishedDate = new Date(product.created_at).toLocaleDateString(
     'ar-EG',
     { year: 'numeric', month: 'long', day: 'numeric' }
@@ -156,7 +169,6 @@ export default function ProductDetailScreen() {
           </Text>
         </Pressable>
 
-        {/* Container */}
         <View
           style={[
             styles.container,
@@ -170,12 +182,16 @@ export default function ProductDetailScreen() {
               { backgroundColor: c.surface2, borderColor: c.border },
             ]}
           >
-            {activeImage && (
+            {activeImage ? (
               <Image
                 source={{ uri: activeImage }}
                 style={styles.mainImage}
                 resizeMode="cover"
               />
+            ) : (
+              <View style={styles.imagePlaceholder}>
+                <Text style={styles.imagePlaceholderText}>🖼️</Text>
+              </View>
             )}
 
             {hasDiscount && (
@@ -191,37 +207,43 @@ export default function ProductDetailScreen() {
 
           {/* Thumbnails */}
           {allImages.length > 1 && (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.thumbnailsContainer}
+            <View
+              style={styles.thumbnailsContainer}
+              onLayout={({ nativeEvent }) => {
+                const size = Math.floor((nativeEvent.layout.width - 16) / 3);
+                if (size > 0 && size !== thumbnailSize) {
+                  setThumbnailSize(size);
+                }
+              }}
             >
-              {allImages.map((img, index) => (
-                <Pressable
-                  key={index}
-                  style={({ pressed }) => [
-                    styles.thumbnail,
-                    {
-                      backgroundColor: c.surface2,
-                      borderColor:
-                        activeImage === img ? c.primary : c.border,
-                    },
-                    activeImage === img && styles.thumbnailActive,
-                    pressed && styles.pressed,
-                  ]}
-                  onPress={() => setActiveImage(img)}
-                >
-                  <Image
-                    source={{ uri: img }}
-                    style={[
-                      styles.thumbnailImg,
-                      { opacity: activeImage === img ? 1 : 0.6 },
+              {thumbnailSize > 0 &&
+                allImages.map((img, index) => (
+                  <Pressable
+                    key={`${img}-${index}`}
+                    style={({ pressed }) => [
+                      styles.thumbnail,
+                      { width: thumbnailSize },
+                      {
+                        backgroundColor: c.surface2,
+                        borderColor:
+                          activeImage === img ? c.primary : c.border,
+                      },
+                      activeImage === img && styles.thumbnailActive,
+                      pressed && styles.pressed,
                     ]}
-                    resizeMode="cover"
-                  />
-                </Pressable>
-              ))}
-            </ScrollView>
+                    onPress={() => setActiveImage(img)}
+                  >
+                    <Image
+                      source={{ uri: img }}
+                      style={[
+                        styles.thumbnailImg,
+                        { opacity: activeImage === img ? 1 : 0.6 },
+                      ]}
+                      resizeMode="cover"
+                    />
+                  </Pressable>
+                ))}
+            </View>
           )}
 
           {/* Name */}
@@ -478,6 +500,15 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  imagePlaceholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  imagePlaceholderText: {
+    fontSize: 64,
+    opacity: 0.3,
+  },
   discountBadge: {
     position: 'absolute',
     top: 12,
@@ -494,12 +525,13 @@ const styles = StyleSheet.create({
   },
 
   thumbnailsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
     paddingVertical: 4,
   },
   thumbnail: {
-    width: 60,
-    height: 60,
+    aspectRatio: 1,
     borderRadius: 6,
     borderWidth: 2,
     overflow: 'hidden',

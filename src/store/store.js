@@ -12,7 +12,7 @@ import ordersReducer from './slices/ordersSlice';
 
 export const store = configureStore({
   reducer: {
-    auth: authReducer,          // ⭐ أضفنا هذا
+    auth: authReducer,         
     users: usersReducer,
     category: categoryReducer,
     products: productsReducer,

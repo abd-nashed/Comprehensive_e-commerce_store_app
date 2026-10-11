@@ -1,18 +1,15 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { DeviceEventEmitter } from 'react-native';  // ⭐ جديد
+import { DeviceEventEmitter } from 'react-native';
 
-// ============ ⚙️ الإعدادات ============
 const BASE_URL = 'https://abdurrazzaq.pythonanywhere.com/api';
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
   timeout: 15000,
-  // ⚠️ لا نضع Content-Type هنا — axios يحدده تلقائياً
-  // (JSON للطلبات العادية، multipart للـ FormData)
+
 });
 
-// ============ 1. إضافة التوكن تلقائياً ============
 axiosInstance.interceptors.request.use(
   async (config) => {
     const token = await AsyncStorage.getItem('access_token');
@@ -24,7 +21,6 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ============ 2. تجديد التوكن عند 401 ============
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -53,7 +49,6 @@ axiosInstance.interceptors.response.use(
           'currentUser',
         ]);
 
-        // ⭐ إعلام التطبيق بضرورة الانتقال لصفحة الدخول
         DeviceEventEmitter.emit('auth:logout');
 
         return Promise.reject(refreshError);

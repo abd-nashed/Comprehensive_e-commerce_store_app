@@ -1,9 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axiosInstance from "../api/axiosInstance";  // ⭐ المسار المصحّح
+import axiosInstance from "../api/axiosInstance";  
+import { deleteWithVerification } from '../api/deleteWithVerification';
 
-// ============ Thunks ============
 
-// ⭐ إرسال رسالة (للزوار — بدون توكن)
 export const sendMessage = createAsyncThunk(
   "contact/sendMessage",
   async ({ full_name, phone, message }, { rejectWithValue }) => {
@@ -24,7 +23,6 @@ export const sendMessage = createAsyncThunk(
   }
 );
 
-// ⭐ جلب كل الرسائل (للمسؤولين)
 export const fetchMessages = createAsyncThunk(
   "contact/fetchAll",
   async (_, { rejectWithValue }) => {
@@ -39,13 +37,15 @@ export const fetchMessages = createAsyncThunk(
   }
 );
 
-// ⭐ حذف رسالة (للمسؤولين)
 export const deleteMessage = createAsyncThunk(
   "contact/delete",
   async (id, { rejectWithValue }) => {
     try {
-      await axiosInstance.delete(`/delete_message/${id}/`);
-      return id;
+      return await deleteWithVerification(
+        `/delete_message/${id}/`,
+        '/get_messages/',
+        id
+      );
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.error || "فشل حذف الرسالة"
@@ -54,7 +54,7 @@ export const deleteMessage = createAsyncThunk(
   }
 );
 
-// ============ Slice ============
+//  Slice
 const contactSlice = createSlice({
   name: "contact",
   initialState: {
@@ -70,7 +70,7 @@ const contactSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // ========== Send Message ==========
+      //   Send Message
       .addCase(sendMessage.pending, (state) => {
         state.isSending = true;
         state.error = null;
@@ -84,7 +84,7 @@ const contactSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Fetch Messages ==========
+      //   Fetch Messages
       .addCase(fetchMessages.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -98,7 +98,7 @@ const contactSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Delete Message ==========
+      //   Delete Message
       .addCase(deleteMessage.fulfilled, (state, action) => {
         state.messages = state.messages.filter((m) => m.id !== action.payload);
       })

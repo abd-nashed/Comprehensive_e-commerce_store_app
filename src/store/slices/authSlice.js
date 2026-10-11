@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '../api/axiosInstance';
 
-// ============ Thunks ============
+
 
 // 1. تسجيل الدخول
 export const login = createAsyncThunk(
@@ -14,13 +14,11 @@ export const login = createAsyncThunk(
         password,
       });
 
-      // ⭐ حفظ التوكنات
       if (data.access && data.refresh) {
         await AsyncStorage.setItem('access_token', data.access);
         await AsyncStorage.setItem('refresh_token', data.refresh);
       }
 
-      // ⭐ حفظ بيانات المستخدم
       if (data.user) {
         await AsyncStorage.setItem('currentUser', JSON.stringify(data.user));
       }
@@ -43,7 +41,6 @@ export const register = createAsyncThunk(
     try {
       const { data } = await axiosInstance.post('/register/', userData);
 
-      // ⭐ حفظ التوكنات إن وُجدت
       if (data.access && data.refresh) {
         await AsyncStorage.setItem('access_token', data.access);
         await AsyncStorage.setItem('refresh_token', data.refresh);
@@ -82,7 +79,6 @@ export const verifySession = createAsyncThunk(
     try {
       const token = await AsyncStorage.getItem('access_token');
       if (!token) {
-        // لا يوجد توكن — ليس مسجلاً
         const userStr = await AsyncStorage.getItem('currentUser');
         return {
           isAuthenticated: false,
@@ -90,7 +86,6 @@ export const verifySession = createAsyncThunk(
         };
       }
 
-      // يوجد توكن — تحقق من صحته
       const { data } = await axiosInstance.get('/verify-me/');
 
       return {
@@ -98,7 +93,6 @@ export const verifySession = createAsyncThunk(
         user: data,
       };
     } catch (error) {
-      // التوكن غير صالح → امسح كل شيء
       await AsyncStorage.multiRemove([
         'access_token',
         'refresh_token',
@@ -123,21 +117,20 @@ export const loadStoredUser = createAsyncThunk(
   }
 );
 
-// ============ Slice ============
+//   Slice
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
     user: null,
     isAuthenticated: false,
-    isLoaded: false,      // هل تم التحميل من AsyncStorage؟
-    isLoading: false,     // هل هناك عملية جارية؟
+    isLoaded: false,
+    isLoading: false,
     error: null,
   },
   reducers: {
     clearAuthError: (state) => {
       state.error = null;
     },
-    // ⭐ تحديث بيانات المستخدم يدوياً
     setUser: (state, action) => {
       state.user = action.payload;
       state.isAuthenticated = !!action.payload;
@@ -145,14 +138,14 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // ========== Load Stored User (عند بدء التطبيق) ==========
+      //   Load Stored User (عند بدء التطبيق)
       .addCase(loadStoredUser.fulfilled, (state, action) => {
         state.user = action.payload.user;
         state.isAuthenticated = action.payload.isAuthenticated;
         state.isLoaded = true;
       })
 
-      // ========== Login ==========
+      //   Login
       .addCase(login.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -168,7 +161,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Register ==========
+      //   Register
       .addCase(register.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -184,7 +177,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Logout ==========
+      //   Logout
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
         state.isAuthenticated = false;
@@ -192,7 +185,7 @@ const authSlice = createSlice({
         state.error = null;
       })
 
-      // ========== Verify Session ==========
+      //   Verify Session
       .addCase(verifySession.fulfilled, (state, action) => {
         state.user = action.payload.user;
         state.isAuthenticated = action.payload.isAuthenticated;

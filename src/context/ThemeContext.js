@@ -8,7 +8,6 @@ export function ThemeProvider({ children }) {
   const [themeName, setThemeName] = useState('dark');
   const [isReady, setIsReady] = useState(false);
 
-  // ⭐ تحميل الثيم من AsyncStorage عند البدء
   useEffect(() => {
     (async () => {
       try {
@@ -24,7 +23,6 @@ export function ThemeProvider({ children }) {
     })();
   }, []);
 
-  // ⭐ تبديل الثيم
   const toggleTheme = async () => {
     const newTheme = themeName === 'light' ? 'dark' : 'light';
     setThemeName(newTheme);
@@ -40,10 +38,10 @@ export function ThemeProvider({ children }) {
   return (
     <ThemeContext.Provider
       value={{
-        theme,              // ⭐ كل الثيم (colors, spacing, radius)
-        themeName,          // 'dark' أو 'light'
+        theme,
+        themeName,
         isDark: themeName === 'dark',
-        toggleTheme,        // ⭐ دالة التبديل
+        toggleTheme,
         isReady,
       }}
     >

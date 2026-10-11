@@ -7,16 +7,16 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import BottomTabs from '@/components/BottomTabs'
+import BottomTabs from '@/components/BottomTabs';
 import Header from '@/components/Header';
 import { useTheme } from '@/context/ThemeContext';
 import { fetchCategories } from '@/store/slices/categorySlice';
 
-// ⚠️ TODO: استبدل بـ process.env لاحقاً
 const API_URL = 'https://abdurrazzaq.pythonanywhere.com';
 
 export default function HomeScreen() {
@@ -26,20 +26,16 @@ export default function HomeScreen() {
   const { theme } = useTheme();
   const c = theme.colors;
 
-  const lang = useSelector((state) => state.lang?.lang || 'ar');
   const { categories, isLoading } = useSelector((state) => state.category);
 
-  // ⚠️ TODO: استبدلها بـ i18n
   const { t } = useTranslation();
 
   useEffect(() => {
     dispatch(fetchCategories());
   }, [dispatch]);
 
-  // ⭐ آخر 6 أقسام فقط
   const latestCategories = categories.slice(0, 6);
 
-  // ⭐ ألوان ديناميكية
   const dynamicStyles = {
     bg: { backgroundColor: c.bg },
     surface: { backgroundColor: c.surface },
@@ -61,9 +57,9 @@ export default function HomeScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* ============================================
+        {/*
             Hero Section
-            ============================================ */}
+                 */}
         <View style={[styles.hero, dynamicStyles.bg]}>
           <View style={styles.heroContainer}>
             {/* Badge */}
@@ -163,9 +159,9 @@ export default function HomeScreen() {
           <View style={[styles.heroBottomLine, dynamicStyles.primaryBg]} />
         </View>
 
-        {/* ============================================
+        {/*
             Categories Section
-            ============================================ */}
+                 */}
         <View style={[styles.categories, dynamicStyles.bg]}>
           <View style={styles.categoriesContainer}>
             {/* Header */}
@@ -258,7 +254,8 @@ export default function HomeScreen() {
                     <View style={styles.categoryInfo}>
                       <Text
                         style={[styles.categoryName, dynamicStyles.text]}
-                        numberOfLines={1}
+                        numberOfLines={2}
+                        ellipsizeMode="tail"
                       >
                         {category.name}
                       </Text>
@@ -289,9 +286,9 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* ============================================
+        {/*
             CTA Section
-            ============================================ */}
+                 */}
         <View style={[styles.homeCta, dynamicStyles.bg]}>
           <View
             style={[
@@ -330,27 +327,22 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
-      <BottomTabs/>
+      <BottomTabs />
     </View>
   );
 }
 
-// ============================================
-// Styles (ثابتة — الألوان ديناميكية داخل المكون)
-// ============================================
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
   scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 20 ,},
+  scrollContent: { paddingBottom: 20 },
 
-  // ============ Hero ============
+  //   Hero
   hero: {
     position: 'relative',
     paddingVertical: 48,
     paddingHorizontal: 20,
-
-
   },
   heroContainer: {
     gap: 16,
@@ -374,18 +366,27 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 0.5,
-    textTransform: 'uppercase',
+    lineHeight: 20,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
   heroTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: '900',
-    lineHeight: 40,
+    lineHeight: 38,
     letterSpacing: -1,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
   heroDescription: {
     fontSize: 16,
     lineHeight: 26,
     marginTop: 4,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
   heroActions: {
     flexDirection: 'row',
@@ -406,12 +407,19 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     letterSpacing: 1,
-    textTransform: 'uppercase',
+    lineHeight: 22,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
   heroBtnArrow: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '700',
+    lineHeight: 22,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
   heroBtnSecondary: {
     paddingVertical: 14,
@@ -423,11 +431,14 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     letterSpacing: 0.5,
-    textTransform: 'uppercase',
+    lineHeight: 22,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
   pressed: { opacity: 0.7 },
 
-  // ============ Stats ============
+  //   Stats
   heroStats: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -441,12 +452,19 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '900',
     letterSpacing: -0.5,
+    lineHeight: 30,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
   heroStatLabel: {
     fontSize: 11,
     fontWeight: '500',
     letterSpacing: 1,
-    textTransform: 'uppercase',
+    lineHeight: 18,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
   heroStatDivider: {
     width: 1,
@@ -461,7 +479,7 @@ const styles = StyleSheet.create({
     height: 1,
   },
 
-  // ============ Categories ============
+  //   Categories
   categories: {
     paddingVertical: 48,
     paddingHorizontal: 20,
@@ -484,13 +502,19 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 2,
-    textTransform: 'uppercase',
+    lineHeight: 20,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
   categoriesTitle: {
     fontSize: 24,
     fontWeight: '900',
     letterSpacing: -0.5,
-    lineHeight: 32,
+    lineHeight: 34,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
   categoriesViewAll: {
     flexDirection: 'row',
@@ -505,20 +529,28 @@ const styles = StyleSheet.create({
   categoriesViewAllText: {
     fontSize: 13,
     fontWeight: '600',
+    lineHeight: 22,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
   categoriesViewAllArrow: {
     fontSize: 14,
     fontWeight: '700',
+    lineHeight: 22,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
 
-  // ============ Category Grid ============
+  //   Category Grid
   categoriesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 12,
   },
   categoryCard: {
-    width: '48%', // بديل grid-template-columns: repeat(2, 1fr)
+    width: '48%',
     borderRadius: 8,
     borderWidth: 1,
     overflow: 'hidden',
@@ -537,24 +569,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   categoryName: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
     marginBottom: 4,
     letterSpacing: -0.3,
     textAlign: 'center',
+    lineHeight: 22,
+    width: '100%',
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
   categoryCount: {
     fontSize: 11,
     fontWeight: '500',
     letterSpacing: 1,
-    textTransform: 'uppercase',
+    lineHeight: 18,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
   categoryHoverLine: {
     height: 3,
     width: '100%',
   },
 
-  // ============ Loading / Empty ============
+  //   Loading / Empty
   homeLoading: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -563,6 +603,10 @@ const styles = StyleSheet.create({
   },
   homeLoadingText: {
     fontSize: 14,
+    lineHeight: 22,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
   homeEmpty: {
     alignItems: 'center',
@@ -571,9 +615,15 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   homeEmptyIcon: { fontSize: 56, opacity: 0.5 },
-  homeEmptyText: { fontSize: 14 },
+  homeEmptyText: {
+    fontSize: 14,
+    lineHeight: 22,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
+  },
 
-  // ============ CTA ============
+  //   CTA
   homeCta: {
     paddingVertical: 48,
     paddingHorizontal: 20,
@@ -589,17 +639,26 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 2,
-    textTransform: 'uppercase',
+    lineHeight: 20,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
   homeCtaTitle: {
-    fontSize: 28,
+    fontSize: 26,          
     fontWeight: '900',
     letterSpacing: -1,
     lineHeight: 36,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
   homeCtaDescription: {
     fontSize: 14,
     lineHeight: 22,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
   homeCtaBtn: {
     flexDirection: 'row',
@@ -616,12 +675,19 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     letterSpacing: 1,
-    textTransform: 'uppercase',
+    lineHeight: 22,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
   homeCtaBtnArrow: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '700',
+    lineHeight: 22,
+    ...Platform.select({
+      android: { includeFontPadding: false },
+    }),
   },
   homeCtaVisual: {
     alignItems: 'center',

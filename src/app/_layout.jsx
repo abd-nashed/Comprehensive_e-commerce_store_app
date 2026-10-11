@@ -33,12 +33,10 @@ function AppContent() {
   }, []);
 
   useEffect(() => {
-    // ⭐ تحميل البيانات من AsyncStorage عند بدء التطبيق
-    dispatch(loadCurrentUser());   // ← هذا الناقص
+    dispatch(loadCurrentUser());
     dispatch(loadLanguage());
     dispatch(loadCart());
 
-    // استمع لحدث تسجيل الخروج
     const sub = DeviceEventEmitter.addListener('auth:logout', () => {
       router.replace('/login');
     });

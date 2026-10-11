@@ -36,7 +36,7 @@ export default function LoginScreen() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
 
-  // ============ Handle Login ============
+  //    Handle Login
   const handleSubmit = async () => {
     if (!username.trim() || !password.trim()) {
       setShowError(true);
@@ -56,7 +56,7 @@ export default function LoginScreen() {
     }
   };
 
-  // ============ Success Close ============
+  //    Success Close
   const handleSuccessClose = async () => {
     const userStr = await AsyncStorage.getItem('currentUser');
     const user = userStr ? JSON.parse(userStr) : null;
@@ -72,13 +72,13 @@ export default function LoginScreen() {
     }
   };
 
-  // ============ Error Close ============
+  //    Error Close
   const handleErrorClose = () => {
     setShowError(false);
     dispatch(clearError());
   };
 
-  // ============ Cancel ============
+  //    Cancel
   const handleCancel = () => {
     setUsername('');
     setPassword('');

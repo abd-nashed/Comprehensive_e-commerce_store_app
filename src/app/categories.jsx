@@ -90,7 +90,6 @@ export default function CategoriesScreen() {
     return name.includes(searchLower) || details.includes(searchLower);
   });
 
-  // ⭐ دالة إظهار خيارات الصورة
   const showImageOptions = () => {
     Alert.alert(
       t('اختر صورة'),
@@ -113,7 +112,6 @@ export default function CategoriesScreen() {
     );
   };
 
-  // ⭐ فتح الكاميرا
   const openCamera = async () => {
     try {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -124,7 +122,7 @@ export default function CategoriesScreen() {
       }
 
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,
@@ -147,7 +145,6 @@ export default function CategoriesScreen() {
     }
   };
 
-  // ⭐ فتح المعرض
   const openGallery = async () => {
     try {
       const { status } =
@@ -159,7 +156,7 @@ export default function CategoriesScreen() {
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,

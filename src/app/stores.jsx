@@ -114,7 +114,6 @@ export default function StoresScreen() {
     );
   });
 
-  // ⭐ خيارات الصورة للنموذج العادي
   const showFormImageOptions = () => {
     Alert.alert(
       t('اختر صورة'),
@@ -137,7 +136,7 @@ export default function StoresScreen() {
       }
 
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,
@@ -170,7 +169,7 @@ export default function StoresScreen() {
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,
@@ -193,7 +192,6 @@ export default function StoresScreen() {
     }
   };
 
-  // ⭐ خيارات الصورة للطلب
   const showRequestImageOptions = () => {
     Alert.alert(
       t('اختر صورة'),
@@ -216,7 +214,7 @@ export default function StoresScreen() {
       }
 
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,
@@ -249,7 +247,7 @@ export default function StoresScreen() {
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,
@@ -499,7 +497,7 @@ export default function StoresScreen() {
     }
   };
 
-  // ============ Form Dialog Content ============
+  //   Form Dialog Content
   const renderFormContent = () => (
     <View
       style={[
@@ -729,7 +727,7 @@ export default function StoresScreen() {
     </View>
   );
 
-  // ============ Request Dialog Content ============
+  //   Request Dialog Content
   const renderRequestContent = () => (
     <View
       style={[

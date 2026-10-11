@@ -1,9 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// ============ Thunks ============
+//   Thunks
 
-// ⭐ تحميل اللغة من AsyncStorage عند بدء التطبيق
 export const loadLanguage = createAsyncThunk(
   'lang/load',
   async () => {
@@ -12,7 +11,6 @@ export const loadLanguage = createAsyncThunk(
   }
 );
 
-// ⭐ تبديل اللغة + حفظها
 export const toggleLanguage = createAsyncThunk(
   'lang/toggle',
   async (_, { getState }) => {
@@ -23,28 +21,27 @@ export const toggleLanguage = createAsyncThunk(
   }
 );
 
-// ============ Slice ============
+//   Slice
 const langSlice = createSlice({
   name: 'lang',
   initialState: {
-    lang: 'ar',       // ⭐ القيمة الافتراضية
-    isLoaded: false,  // ⭐ هل تم التحميل من AsyncStorage؟
+    lang: 'ar',
+    isLoaded: false,
   },
   reducers: {
-    // ⭐ reducer sync (اختياري)
     setLanguage: (state, action) => {
       state.lang = action.payload;
     },
   },
   extraReducers: (builder) => {
     builder
-      // ========== Load Language ==========
+      //   Load Language
       .addCase(loadLanguage.fulfilled, (state, action) => {
         state.lang = action.payload;
         state.isLoaded = true;
       })
 
-      // ========== Toggle Language ==========
+      //   Toggle Language
       .addCase(toggleLanguage.fulfilled, (state, action) => {
         state.lang = action.payload;
       });

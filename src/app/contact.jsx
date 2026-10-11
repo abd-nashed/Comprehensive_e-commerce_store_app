@@ -35,7 +35,7 @@ export default function ContactScreen() {
     currentUser?.role
   );
 
-  // ============ States ============
+  //   States
   const [form, setForm] = useState({
     full_name: '',
     phone: '',
@@ -54,7 +54,7 @@ export default function ContactScreen() {
     message: '',
   });
 
-  // ============ Submit ============
+  //   Submit
   const handleSubmit = async () => {
     if (isSending) return;
 
@@ -100,7 +100,7 @@ export default function ContactScreen() {
     }
   };
 
-  // ============ Open External Links ============
+  //   Open External Links 
   const openWhatsApp = () => {
     Linking.openURL('https://wa.me/963900000000').catch(() => {});
   };
@@ -123,7 +123,7 @@ export default function ContactScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* ============ Page Header ============ */}
+        {/*   Page Header   */}
         <View style={styles.pageHeader}>
           <View style={styles.headerTitleRow}>
             <View
@@ -156,7 +156,7 @@ export default function ContactScreen() {
           )}
         </View>
 
-        {/* ============ Contact Info ============ */}
+        {/*   Contact Info   */}
         <View
           style={[
             styles.section,
@@ -285,7 +285,7 @@ export default function ContactScreen() {
           </View>
         </View>
 
-        {/* ============ Contact Form ============ */}
+        {/*   Contact Form   */}
         <View
           style={[
             styles.section,

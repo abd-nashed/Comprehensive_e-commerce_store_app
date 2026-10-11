@@ -1,23 +1,21 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// ============ Thunks ============
+//   Thunks
 
-// ⭐ تحميل السلة من AsyncStorage عند بدء التطبيق
 export const loadCart = createAsyncThunk("cart/load", async () => {
   const cartStr = await AsyncStorage.getItem("cart");
   return cartStr ? JSON.parse(cartStr) : [];
 });
 
-// ============ Slice ============
+//   Slice
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
-    items: [],          // ⭐ يبدأ فارغاً، يُحمّل من AsyncStorage
-    isLoaded: false,    // ⭐ هل تم التحميل؟
+    items: [],
+    isLoaded: false,
   },
   reducers: {
-    // ⭐ إضافة منتج للسلة
     addToCart: (state, action) => {
       const product = action.payload;
       const existing = state.items.find((item) => item.id === product.id);
@@ -35,7 +33,6 @@ const cartSlice = createSlice({
           quantity: 1,
         });
       }
-      // الحفظ سيتم تلقائياً عبر middleware
     },
 
     removeFromCart: (state, action) => {

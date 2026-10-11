@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axiosInstance from '../api/axiosInstance';  // ⭐ المسار المصحّح
+import axiosInstance from '../api/axiosInstance';  
+import { deleteWithVerification } from '../api/deleteWithVerification';
 
-// ============ Thunks ============
 
 // 0. جلب الأقسام
 export const fetchCategories = createAsyncThunk(
@@ -53,8 +53,11 @@ export const deleteCategory = createAsyncThunk(
   'categories/delete',
   async (id, { rejectWithValue }) => {
     try {
-      await axiosInstance.delete(`/delete_category/${id}/`);
-      return id;
+      return await deleteWithVerification(
+        `/delete_category/${id}/`,
+        '/get_categories/',
+        id
+      );
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.error || 'فشل حذف القسم'
@@ -63,7 +66,7 @@ export const deleteCategory = createAsyncThunk(
   }
 );
 
-// ============ Slice ============
+//   Slice
 const categorySlice = createSlice({
   name: 'category',
   initialState: {
@@ -78,7 +81,7 @@ const categorySlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // ========== Fetch ==========
+      //   Fetch
       .addCase(fetchCategories.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -92,7 +95,7 @@ const categorySlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Add ==========
+      //   Add
       .addCase(addCategory.fulfilled, (state, action) => {
         state.categories.unshift(action.payload);
       })
@@ -100,7 +103,7 @@ const categorySlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Update ==========
+      //   Update
       .addCase(updateCategory.fulfilled, (state, action) => {
         state.categories = state.categories.map((c) =>
           c.id === action.payload.id ? action.payload : c
@@ -110,7 +113,7 @@ const categorySlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Delete ==========
+      //   Delete
       .addCase(deleteCategory.fulfilled, (state, action) => {
         state.categories = state.categories.filter(
           (c) => c.id !== action.payload

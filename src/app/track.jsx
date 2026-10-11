@@ -30,7 +30,7 @@ export default function TrackOrderScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // ============ Search Order ============
+  //   Search Order
   const handleSearch = async () => {
     if (!code.trim()) {
       setError(t('يرجى إدخال كود التتبع'));
@@ -54,13 +54,13 @@ export default function TrackOrderScreen() {
     }
   };
 
-  // ============ Status Index ============
+  //   Status Index
   const getStatusIndex = (status) => {
     const steps = ['pending', 'shipped', 'delivered'];
     return steps.indexOf(status);
   };
 
-  // ============ Status Colors ============
+  //   Status Colors
   const getStatusStyle = (status) => {
     switch (status) {
       case 'pending':
@@ -92,7 +92,7 @@ export default function TrackOrderScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* ============ Page Header ============ */}
+        {/*   Page Header   */}
         <View style={styles.pageHeader}>
           <View
             style={[
@@ -114,7 +114,7 @@ export default function TrackOrderScreen() {
           </Text>
         </View>
 
-        {/* ============ Search Form ============ */}
+        {/*   Search Form   */}
         <View
           style={[
             styles.inputWrapper,
@@ -158,7 +158,7 @@ export default function TrackOrderScreen() {
           </Pressable>
         </View>
 
-        {/* ============ Error ============ */}
+        {/*   Error   */}
         {error ? (
           <View
             style={[
@@ -172,7 +172,7 @@ export default function TrackOrderScreen() {
           </View>
         ) : null}
 
-        {/* ============ Order Result ============ */}
+        {/*   Order Result   */}
         {order ? (
           <View style={styles.resultContainer}>
             {/* Order Card */}
@@ -577,7 +577,7 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: { padding: 20, paddingBottom: 40 },
 
-  // ============ Page Header ============
+  //   Page Header
   pageHeader: {
     alignItems: 'center',
     marginBottom: 30,
@@ -612,7 +612,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
 
-  // ============ Search Form ============
+  //   Search Form
   inputWrapper: {
     borderRadius: 12,
     borderWidth: 2,
@@ -648,7 +648,7 @@ const styles = StyleSheet.create({
   },
   pressed: { opacity: 0.7 },
 
-  // ============ Error ============
+  //   Error
   errorBox: {
     padding: 12,
     borderWidth: 1,
@@ -662,7 +662,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // ============ Result Card ============
+  //   Result Card
   resultContainer: { gap: 16 },
   card: {
     borderRadius: 16,
@@ -693,7 +693,7 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
 
-  // ============ Status ============
+  //   Status
   statusWrapper: {
     alignItems: 'center',
   },
@@ -718,7 +718,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
 
-  // ============ Steps ============
+  //   Steps
   stepsContainer: {
     padding: 16,
     borderRadius: 10,
@@ -762,7 +762,7 @@ const styles = StyleSheet.create({
     marginStart: 23,
   },
 
-  // ============ Details ============
+  //   Details
   detailsContainer: {
     paddingTop: 14,
     borderTopWidth: 1,
@@ -802,7 +802,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
 
-  // ============ Products ============
+  //   Products
   productsContainer: {
     paddingTop: 16,
     borderTopWidth: 1,
@@ -861,7 +861,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
 
-  // ============ Actions ============
+  //   Actions
   actionsRow: {
     flexDirection: 'row',
     gap: 10,

@@ -1,7 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axiosInstance from "../api/axiosInstance";  // ⭐ المسار المصحّح
+import axiosInstance from "../api/axiosInstance";
+import {
+  deleteAllWithVerification,
+  deleteWithVerification,
+} from '../api/deleteWithVerification';
 
-// ============ Thunks ============
+//   Thunks
 
 // 1. إنشاء طلب (للزوار)
 export const createOrder = createAsyncThunk(
@@ -73,8 +77,11 @@ export const deleteOrder = createAsyncThunk(
   "orders/delete",
   async (id, { rejectWithValue }) => {
     try {
-      await axiosInstance.delete(`/delete_order/${id}/`);
-      return id;
+      return await deleteWithVerification(
+        `/delete_order/${id}/`,
+        '/get_orders/',
+        id
+      );
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.error || "فشل حذف الطلب"
@@ -83,13 +90,16 @@ export const deleteOrder = createAsyncThunk(
   }
 );
 
-// 6. ⭐ حذف كل الطلبات
+// 6.  حذف كل الطلبات
 export const deleteAllOrders = createAsyncThunk(
   "orders/deleteAll",
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
     try {
-      const response = await axiosInstance.delete("/delete_all_orders/");
-      return response.data;
+      return await deleteAllWithVerification(
+        '/delete_all_orders/',
+        '/get_orders/',
+        { deleted_count: getState().orders.orders.length }
+      );
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.error || "فشل حذف الطلبات"
@@ -113,7 +123,7 @@ export const fetchDailySales = createAsyncThunk(
   }
 );
 
-// ============ Slice ============
+//   Slice
 const ordersSlice = createSlice({
   name: "orders",
   initialState: {
@@ -135,7 +145,7 @@ const ordersSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // ========== Create Order ==========
+      //   Create Order
       .addCase(createOrder.pending, (state) => {
         state.isCreating = true;
         state.error = null;
@@ -150,7 +160,7 @@ const ordersSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Fetch Orders ==========
+      //   Fetch Orders
       .addCase(fetchOrders.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -164,7 +174,7 @@ const ordersSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Fetch One ==========
+      //   Fetch One
       .addCase(fetchOrder.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -178,7 +188,7 @@ const ordersSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Update Status ==========
+      //   Update Status
       .addCase(updateOrderStatus.fulfilled, (state, action) => {
         state.orders = state.orders.map((o) =>
           o.id === action.payload.id ? action.payload : o
@@ -191,7 +201,7 @@ const ordersSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Delete One ==========
+      //   Delete One
       .addCase(deleteOrder.fulfilled, (state, action) => {
         state.orders = state.orders.filter((o) => o.id !== action.payload);
       })
@@ -199,7 +209,7 @@ const ordersSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Delete All ==========
+      //   Delete All
       .addCase(deleteAllOrders.fulfilled, (state) => {
         state.orders = [];
       })
@@ -207,7 +217,7 @@ const ordersSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Daily Sales ==========
+      //   Daily Sales
       .addCase(fetchDailySales.fulfilled, (state, action) => {
         state.dailySales = action.payload;
       })

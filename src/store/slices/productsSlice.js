@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axiosInstance from '../api/axiosInstance';  // ⭐ المسار المصحّح
+import axiosInstance from '../api/axiosInstance';  
+import { deleteWithVerification } from '../api/deleteWithVerification';
 
-// ============ Thunks ============
 
 // 1. جلب كل المنتجات
 export const fetchProducts = createAsyncThunk(
@@ -69,8 +69,11 @@ export const deleteProduct = createAsyncThunk(
   'products/delete',
   async (id, { rejectWithValue }) => {
     try {
-      await axiosInstance.delete(`/delete_product/${id}/`);
-      return id;
+      return await deleteWithVerification(
+        `/delete_product/${id}/`,
+        '/get_products/',
+        id
+      );
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.error || 'فشل حذف المنتج'
@@ -79,7 +82,7 @@ export const deleteProduct = createAsyncThunk(
   }
 );
 
-// ============ Slice ============
+//   Slice
 const productsSlice = createSlice({
   name: 'products',
   initialState: {
@@ -94,7 +97,7 @@ const productsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // ========== Fetch All ==========
+      //   Fetch All
       .addCase(fetchProducts.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -108,7 +111,7 @@ const productsSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Fetch By Category ==========
+      //   Fetch By Category
       .addCase(fetchProductsByCategory.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -122,7 +125,7 @@ const productsSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Add ==========
+      //   Add
       .addCase(addProduct.fulfilled, (state, action) => {
         state.products.unshift(action.payload);
       })
@@ -130,7 +133,7 @@ const productsSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Update ==========
+      //   Update
       .addCase(updateProduct.fulfilled, (state, action) => {
         state.products = state.products.map((p) =>
           p.id === action.payload.id ? action.payload : p
@@ -140,7 +143,7 @@ const productsSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ========== Delete ==========
+      //   Delete
       .addCase(deleteProduct.fulfilled, (state, action) => {
         state.products = state.products.filter((p) => p.id !== action.payload);
       })

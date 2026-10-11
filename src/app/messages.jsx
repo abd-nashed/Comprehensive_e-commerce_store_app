@@ -34,7 +34,7 @@ export default function MessagesScreen() {
     currentUser?.role
   );
 
-  // ============ States ============
+  //     States
   const [search, setSearch] = useState('');
 
   const [deleteDialog, setDeleteDialog] = useState({
@@ -53,12 +53,12 @@ export default function MessagesScreen() {
     message: '',
   });
 
-  // ============ Fetch ============
+  //     Fetch
   useEffect(() => {
     if (canView) dispatch(fetchMessages());
   }, [dispatch, canView]);
 
-  // ============ Filter ============
+  //     Filter
   const filtered = messages.filter((m) => {
     const s = search.toLowerCase();
     return (
@@ -68,7 +68,7 @@ export default function MessagesScreen() {
     );
   });
 
-  // ============ Delete ============
+  //     Delete
   const openDeleteDialog = (message) => {
     setDeleteDialog({
       isOpen: true,
